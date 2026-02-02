@@ -298,7 +298,7 @@
 
   <!-- Add Tool Modal -->
     <div id="add-tool-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 transform transition-all">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 transform transition-all">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-slate-800">새로운 툴 등록하기</h2>
                 <button id="close-modal-btn" class="p-2 rounded-full hover:bg-slate-100">
@@ -312,13 +312,28 @@
                     <label for="tool-name" class="block text-sm font-bold text-slate-600 mb-1">툴 이름 *</label>
                     <input type="text" id="tool-name" required class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
                 </div>
+                 <div>
+                    <label for="tool-author" class="block text-sm font-bold text-slate-600 mb-1">등록자 *</label>
+                    <input type="text" id="tool-author" required class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                </div>
                 <div>
                     <label for="tool-description" class="block text-sm font-bold text-slate-600 mb-1">툴 설명 *</label>
                     <textarea id="tool-description" required rows="3" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"></textarea>
                 </div>
                  <div>
-                    <label for="tool-icon" class="block text-sm font-bold text-slate-600 mb-1">아이콘 (이모지) *</label>
-                    <input type="text" id="tool-icon" placeholder="예: ✨" required class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    <label for="tool-icon" class="block text-sm font-bold text-slate-600 mb-1">아이콘 (이모지)</label>
+                    <input type="text" id="tool-icon" placeholder="아래에서 선택하거나 직접 입력하세요" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✨</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🎨</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✂️</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">📌</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">💡</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🚀</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✍️</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🔗</button>
+                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">📊</button>
+                    </div>
                 </div>
                 <div>
                     <label for="tool-url" class="block text-sm font-bold text-slate-600 mb-1">바로가기 URL</label>
@@ -340,28 +355,30 @@
         const addToolBtn = document.getElementById('add-tool-btn');
         const modal = document.getElementById('add-tool-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
         const addToolForm = document.getElementById('add-tool-form');
         const toolGrid = document.getElementById('tool-grid');
+        const toolIconInput = document.getElementById('tool-icon');
 
         const openModal = () => modal.classList.remove('hidden');
         const closeModal = () => modal.classList.add('hidden');
 
         addToolBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
+
+        const emojiBtns = document.querySelectorAll('.emoji-btn');
+        emojiBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toolIconInput.value = btn.textContent;
+            });
         });
 
         addToolForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             const name = document.getElementById('tool-name').value;
+            const author = document.getElementById('tool-author').value;
             const description = document.getElementById('tool-description').value;
-            const icon = document.getElementById('tool-icon').value;
+            const icon = toolIconInput.value || '✨';
             const url = document.getElementById('tool-url').value;
             const badges = document.getElementById('tool-badges').value.split(',').map(b => b.trim()).filter(Boolean);
 
@@ -374,13 +391,14 @@
                     </button>
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">${icon}</div>
-                        <div class="flex gap-2 pr-8">
+                        <div class="flex gap-2 pr-8 flex-wrap justify-end">
                             ${badges.map(badge => `<span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">${badge}</span>`).join('')}
                         </div>
                     </div>
                     <div class="flex-1">
                         <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">${name}</h3>
                         <p class="text-sm text-slate-500 leading-relaxed">${description}</p>
+                        <p class="text-xs text-slate-400 mt-2">등록: ${author}</p>
                     </div>
                     <div class="mt-6 pt-4 border-t border-slate-100">
                         <a href="${url || '#'}" ${url ? 'target="_blank" rel="noopener noreferrer"' : ''} class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
