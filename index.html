@@ -355,6 +355,7 @@
         const addToolBtn = document.getElementById('add-tool-btn');
         const modal = document.getElementById('add-tool-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
         const addToolForm = document.getElementById('add-tool-form');
         const toolGrid = document.getElementById('tool-grid');
         const toolIconInput = document.getElementById('tool-icon');
@@ -364,6 +365,7 @@
 
         addToolBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
 
         const emojiBtns = document.querySelectorAll('.emoji-btn');
         emojiBtns.forEach(btn => {
@@ -371,17 +373,11 @@
                 toolIconInput.value = btn.textContent;
             });
         });
+        
+        const TOOLS_STORAGE_KEY = 'ai-design-hub-tools';
 
-        addToolForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const name = document.getElementById('tool-name').value;
-            const author = document.getElementById('tool-author').value;
-            const description = document.getElementById('tool-description').value;
-            const icon = toolIconInput.value || '✨';
-            const url = document.getElementById('tool-url').value;
-            const badges = document.getElementById('tool-badges').value.split(',').map(b => b.trim()).filter(Boolean);
-
+        function renderToolCard(tool) {
+            const { name, author, description, icon, url, badges } = tool;
             const newToolCardHTML = `
                 <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
                     <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
@@ -395,10 +391,12 @@
                             ${badges.map(badge => `<span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">${badge}</span>`).join('')}
                         </div>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">${name}</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">${description}</p>
-                        <p class="text-xs text-slate-400 mt-2">등록: ${author}</p>
+                    <div class="flex-1 flex flex-col">
+                        <div>
+                            <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">${name}</h3>
+                            <p class="text-sm text-slate-500 leading-relaxed">${description}</p>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-auto pt-2">등록: ${author}</p>
                     </div>
                     <div class="mt-6 pt-4 border-t border-slate-100">
                         <a href="${url || '#'}" ${url ? 'target="_blank" rel="noopener noreferrer"' : ''} class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
@@ -408,8 +406,39 @@
                     </div>
                 </div>
             `;
-
             toolGrid.insertAdjacentHTML('beforeend', newToolCardHTML);
+        }
+
+        try {
+            const storedTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
+            storedTools.forEach(renderToolCard);
+        } catch (error) {
+            console.error('Error loading tools from localStorage:', error);
+            localStorage.removeItem(TOOLS_STORAGE_KEY);
+        }
+
+        addToolForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newTool = {
+                name: document.getElementById('tool-name').value,
+                author: document.getElementById('tool-author').value,
+                description: document.getElementById('tool-description').value,
+                icon: toolIconInput.value || '✨',
+                url: document.getElementById('tool-url').value,
+                badges: document.getElementById('tool-badges').value.split(',').map(b => b.trim()).filter(Boolean)
+            };
+            
+            renderToolCard(newTool);
+
+            try {
+                const existingTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
+                existingTools.push(newTool);
+                localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(existingTools));
+            } catch (error) {
+                console.error('Error saving tool to localStorage:', error);
+            }
+
             addToolForm.reset();
             closeModal();
         });
