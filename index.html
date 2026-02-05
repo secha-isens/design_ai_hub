@@ -37,7 +37,7 @@
         background-color: #f8fafc; /* Slate-50 */
         color: #1e293b; /* Slate-800 */
       }
-      /* Custom scrollbar for light theme */
+      /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
       }
@@ -51,25 +51,39 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
       }
+      .heart-icon {
+        transition: all 0.2s ease-in-out;
+      }
+      .heart-icon.active {
+        fill: #f97316;
+        color: #f97316;
+        stroke: #f97316;
+      }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+  }
+}
+</script>
 </head>
 <body class="overflow-hidden">
 
   <div class="flex h-screen overflow-hidden bg-slate-50 text-slate-900 font-sans">
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black/50 hidden transition-opacity opacity-0 md:hidden"></div>
+
     <!-- Sidebar -->
-    <aside class="fixed inset-y-0 left-0 z-30 w-64 transform bg-white border-r border-slate-200 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:static md:inset-0 shadow-lg md:shadow-none">
-      <div class="flex flex-col h-full">
-        <!-- Logo -->
-        <div class="flex items-center justify-center h-20 border-b border-slate-100">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 md:static md:inset-0 shadow-lg md:shadow-none overflow-hidden md:w-0 md:border-none">
+      <div class="w-64 h-full flex flex-col">
+        <div class="flex items-center justify-center h-20 border-b border-slate-100 flex-shrink-0">
           <h1 class="text-2xl font-bold tracking-tighter text-slate-800 cursor-pointer">
             AI <span class="text-brand-500">DESIGN</span> HUB
           </h1>
         </div>
-
-        <!-- Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-2">
-          <!-- 홈 (활성) -->
-          <button class="flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+          <button id="nav-home-btn" class="flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600">
             <span class="mr-3 text-brand-500">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -77,56 +91,43 @@
             </span>
             홈
           </button>
-          <!-- 즐겨찾기 -->
-          <button class="flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800">
+          <button id="nav-favorites-btn" class="flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800">
             <span class="mr-3 text-slate-400 group-hover:text-slate-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
               </svg>
             </span>
             즐겨찾기
-          </button>
-          <!-- 설정 -->
-          <button class="flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800">
-            <span class="mr-3 text-slate-400 group-hover:text-slate-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-            </span>
-            설정
           </button>
         </nav>
       </div>
     </aside>
 
-    <!-- Main Content -->
     <div class="flex flex-col flex-1 w-0 overflow-hidden">
-      <!-- Header -->
       <header class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm z-10 sticky top-0 gap-4">
-        <div class="flex items-center md:hidden">
-          <button class="p-2 -ml-2 text-slate-500 hover:text-slate-800">
+        <div class="flex items-center gap-3">
+          <button id="sidebar-toggle" class="p-2 -ml-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
-          <span class="ml-2 font-bold text-slate-800">AI HUB</span>
+          <span class="font-bold text-slate-800 md:hidden">AI HUB</span>
+          <span id="desktop-logo" class="font-bold text-slate-800 text-xl tracking-tighter">
+             AI <span class="text-brand-500">DESIGN</span> HUB
+          </span>
         </div>
-        <div class="hidden md:block">
-          <h2 class="text-xl font-bold text-slate-800">
-            안녕하세요, 김디자이너님 👋
-          </h2>
-          <p class="text-sm text-slate-500">오늘도 AI와 함께 칼퇴해볼까요?</p>
+        <div class="hidden md:block h-14 overflow-hidden relative w-full max-w-xl group">
+           <div id="quote-slider" class="transform"></div>
         </div>
         <div class="flex items-center gap-4 flex-1 justify-end">
             <div class="w-full max-w-md">
                 <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                </span>
-                <input type="text" placeholder="필요한 AI 툴을 검색하세요..." class="w-full py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-white transition-all shadow-sm">
+                  </span>
+                  <input type="text" id="search-input" placeholder="필요한 AI 툴을 검색하세요..." class="w-full py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-white transition-all shadow-sm">
                 </div>
             </div>
             <button id="add-tool-btn" class="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-xl hover:bg-brand-600 transition-colors shadow-sm whitespace-nowrap">
@@ -138,159 +139,12 @@
         </div>
       </header>
 
-      <!-- Scrollable Content Area -->
       <main class="flex-1 overflow-y-auto p-6 md:p-8 relative">
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-200/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <!-- Category Tabs -->
-        <div class="flex flex-wrap gap-3 mb-8 relative z-10">
-          <button class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 border bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/25">
-            전체
-          </button>
-          <button class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 border bg-white text-slate-500 border-slate-200 hover:border-brand-200 hover:text-brand-500 hover:bg-brand-50">
-            무료 외부 추천 툴
-          </button>
-          <button class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 border bg-white text-slate-500 border-slate-200 hover:border-brand-200 hover:text-brand-500 hover:bg-brand-50">
-            우리 직원이 직접 만든 툴
-          </button>
-        </div>
-
-        <!-- Tool Grid -->
-        <div id="tool-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 relative z-10">
-          
-          <!-- Tool Card 1: 미드저니 -->
-          <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-            <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-            </button>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">🎨</div>
-              <div class="flex gap-2 pr-8">
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">추천</span>
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">이미지</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">미드저니</h3>
-              <p class="text-sm text-slate-500 leading-relaxed">프롬프트 입력으로 만드는 고퀄리티 AI 이미지</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-slate-100">
-              <a href="https://www.midjourney.com" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                <span>바로가기</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- Tool Card 2: 리무브 BG -->
-          <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-            <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-            </button>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">✂️</div>
-              <div class="flex gap-2 pr-8">
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">유틸리티</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">리무브 BG</h3>
-              <p class="text-sm text-slate-500 leading-relaxed">원클릭으로 끝나는 자동 누끼 따기</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-slate-100">
-              <a href="https://www.remove.bg/ko" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                <span>바로가기</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </a>
-            </div>
-          </div>
-          
-          <!-- Tool Card 3: 핀터레스트 -->
-          <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-            <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-            </button>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">📌</div>
-              <div class="flex gap-2 pr-8">
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">레퍼런스</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">핀터레스트</h3>
-              <p class="text-sm text-slate-500 leading-relaxed">전 세계 디자인 레퍼런스와 아이디어 탐색</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-slate-100">
-              <a href="https://www.pinterest.co.kr" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                <span>바로가기</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- Tool Card 4: 사내 배너 생성기 -->
-          <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-            <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-            </button>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">🏢</div>
-              <div class="flex gap-2 pr-8">
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-purple-50 text-purple-600 border border-purple-100">BETA</span>
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">사내툴</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">사내 배너 생성기</h3>
-              <p class="text-sm text-slate-500 leading-relaxed">3초 만에 배너 제작 완료, 상품명만 입력하세요</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-slate-100">
-              <a href="#" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                <span>바로가기</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </a>
-            </div>
-          </div>
-          
-          <!-- Tool Card 5: 카피라이팅 요정 -->
-          <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-            <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-            </button>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">✍️</div>
-              <div class="flex gap-2 pr-8">
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-purple-50 text-purple-600 border border-purple-100">BETA</span>
-                <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">사내툴</span>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">카피라이팅 요정</h3>
-              <p class="text-sm text-slate-500 leading-relaxed">상세페이지 문구 고민 해결, GPT 기반 추천</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-slate-100">
-              <a href="#" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                <span>바로가기</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </a>
-            </div>
-          </div>
-          
-        </div>
-
-        <!-- Footer -->
+        <div id="category-tabs" class="flex flex-wrap gap-3 mb-8 relative z-10"></div>
+        <div id="tool-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 relative z-10"></div>
         <div class="mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-400">
-          <p>© 2024 Design Team AI Automation Hub. All rights reserved.</p>
+          <p>© 2026 Design Team AI Automation Hub. All rights reserved.</p>
         </div>
       </main>
     </div>
@@ -309,140 +163,45 @@
             </div>
             <form id="add-tool-form" class="space-y-4">
                 <div>
-                    <label for="tool-name" class="block text-sm font-bold text-slate-600 mb-1">툴 이름 *</label>
-                    <input type="text" id="tool-name" required class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
-                </div>
-                 <div>
-                    <label for="tool-author" class="block text-sm font-bold text-slate-600 mb-1">등록자 *</label>
-                    <input type="text" id="tool-author" required class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 이름 *</label>
+                    <input type="text" id="tool-name" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500">
                 </div>
                 <div>
-                    <label for="tool-description" class="block text-sm font-bold text-slate-600 mb-1">툴 설명 *</label>
-                    <textarea id="tool-description" required rows="3" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"></textarea>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 제작자 *</label>
+                    <input type="text" id="tool-creator" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500">
                 </div>
-                 <div>
-                    <label for="tool-icon" class="block text-sm font-bold text-slate-600 mb-1">아이콘 (이모지)</label>
-                    <input type="text" id="tool-icon" placeholder="아래에서 선택하거나 직접 입력하세요" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
-                    <div class="flex flex-wrap gap-2 mt-2">
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✨</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🎨</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✂️</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">📌</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">💡</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🚀</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">✍️</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">🔗</button>
-                        <button type="button" class="emoji-btn text-xl p-1 rounded-md hover:bg-slate-200 transition-colors">📊</button>
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">카테고리 *</label>
+                    <select id="tool-category" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500">
+                        <option value="무료 외부 추천 툴">무료 외부 추천 툴</option>
+                        <option value="우리 직원이 직접 만든 툴">우리 직원이 직접 만든 툴</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-sm font-bold text-slate-600">툴 설명 *</label>
+                        <button type="button" id="ai-enhance-btn" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg">
+                            AI로 다듬기
+                        </button>
                     </div>
+                    <textarea id="tool-description" required rows="3" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500"></textarea>
                 </div>
                 <div>
-                    <label for="tool-url" class="block text-sm font-bold text-slate-600 mb-1">바로가기 URL</label>
-                    <input type="url" id="tool-url" placeholder="https://example.com" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">아이콘 (이모지)</label>
+                    <input type="text" id="tool-icon" placeholder="✨" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
                 </div>
                 <div>
-                    <label for="tool-badges" class="block text-sm font-bold text-slate-600 mb-1">뱃지 (쉼표로 구분)</label>
-                    <input type="text" id="tool-badges" placeholder="예: 신규, 이미지, 유틸리티" class="w-full px-4 py-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">바로가기 URL</label>
+                    <input type="url" id="tool-url" placeholder="https://" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
                 </div>
                 <div class="flex justify-end gap-4 pt-4">
-                    <button type="button" id="cancel-btn" class="px-6 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">취소</button>
-                    <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors">등록하기</button>
+                    <button type="button" id="cancel-btn" class="px-6 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200">취소</button>
+                    <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-lg hover:bg-brand-600">등록하기</button>
                 </div>
             </form>
         </div>
     </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const addToolBtn = document.getElementById('add-tool-btn');
-        const modal = document.getElementById('add-tool-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const addToolForm = document.getElementById('add-tool-form');
-        const toolGrid = document.getElementById('tool-grid');
-        const toolIconInput = document.getElementById('tool-icon');
 
-        const openModal = () => modal.classList.remove('hidden');
-        const closeModal = () => modal.classList.add('hidden');
-
-        addToolBtn.addEventListener('click', openModal);
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-
-        const emojiBtns = document.querySelectorAll('.emoji-btn');
-        emojiBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                toolIconInput.value = btn.textContent;
-            });
-        });
-        
-        const TOOLS_STORAGE_KEY = 'ai-design-hub-tools';
-
-        function renderToolCard(tool) {
-            const { name, author, description, icon, url, badges } = tool;
-            const newToolCardHTML = `
-                <div class="group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-500/50">
-                    <button class="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors text-slate-300 hover:text-brand-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                    </button>
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center justify-center w-12 h-12 text-2xl bg-slate-50 rounded-xl border border-slate-100 group-hover:bg-brand-50 group-hover:border-brand-100 transition-colors">${icon}</div>
-                        <div class="flex gap-2 pr-8 flex-wrap justify-end">
-                            ${badges.map(badge => `<span class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-slate-100 text-slate-500 border border-slate-200">${badge}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="flex-1 flex flex-col">
-                        <div>
-                            <h3 class="mb-2 text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">${name}</h3>
-                            <p class="text-sm text-slate-500 leading-relaxed">${description}</p>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-auto pt-2">등록: ${author}</p>
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-slate-100">
-                        <a href="${url || '#'}" ${url ? 'target="_blank" rel="noopener noreferrer"' : ''} class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-slate-500 bg-slate-50 rounded-lg transition-all hover:no-underline group-hover:bg-brand-500 group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-500/20 cursor-pointer">
-                            <span>바로가기</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                    </div>
-                </div>
-            `;
-            toolGrid.insertAdjacentHTML('beforeend', newToolCardHTML);
-        }
-
-        try {
-            const storedTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
-            storedTools.forEach(renderToolCard);
-        } catch (error) {
-            console.error('Error loading tools from localStorage:', error);
-            localStorage.removeItem(TOOLS_STORAGE_KEY);
-        }
-
-        addToolForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const newTool = {
-                name: document.getElementById('tool-name').value,
-                author: document.getElementById('tool-author').value,
-                description: document.getElementById('tool-description').value,
-                icon: toolIconInput.value || '✨',
-                url: document.getElementById('tool-url').value,
-                badges: document.getElementById('tool-badges').value.split(',').map(b => b.trim()).filter(Boolean)
-            };
-            
-            renderToolCard(newTool);
-
-            try {
-                const existingTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
-                existingTools.push(newTool);
-                localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(existingTools));
-            } catch (error) {
-                console.error('Error saving tool to localStorage:', error);
-            }
-
-            addToolForm.reset();
-            closeModal();
-        });
-    });
-  </script>
+  <script src="index.js" type="module"></script>
 </body>
 </html>
