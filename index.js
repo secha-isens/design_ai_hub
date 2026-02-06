@@ -14,15 +14,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const navHomeBtn = document.getElementById('nav-home-btn');
     const navFavoritesBtn = document.getElementById('nav-favorites-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const submitBtn = document.getElementById('submit-btn');
 
     // 데이터를 저장할 이름표들
-    const TOOLS_STORAGE_KEY = 'ai-design-hub-tools';
+    // ★ 중요: 이제 이 키에는 '사용자가 직접 추가한 툴'만 저장합니다.
+    const USER_TOOLS_STORAGE_KEY = 'ai-design-hub-user-tools-v2';
     const FAVORITES_STORAGE_KEY = 'ai-design-hub-favorites';
 
-    // ★ 관리자 비밀번호 설정 (원하는 비밀번호로 바꾸세요)
+    // ★ 관리자 비밀번호 설정
     const ADMIN_PASSWORD = "admin"; 
 
-    // 시니어 디자이너 추천 필수 툴 + 우리팀 예시 데이터 (기본 데이터)
+    // ---------------------------------------------------------
+    // 2. 데이터 관리 (기본 툴 + 사용자 툴 병합)
+    // ---------------------------------------------------------
+    
+    // 시니어 디자이너 추천 필수 툴 (코드에 영구적으로 박제된 데이터)
     const DEFAULT_TOOLS = [
         // --- 1. 영감 & 레퍼런스 ---
         {
@@ -203,6 +210,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentView = 'all'; 
     let favorites = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)) || [];
     
+    // LocalStorage에서 사용자 추가 툴 불러오기
+    function getUserTools() {
+        return JSON.parse(localStorage.getItem(USER_TOOLS_STORAGE_KEY)) || [];
+    }
+
+    // 모든 툴 병합해서 가져오기 (기본 + 사용자)
+    function getAllTools() {
+        const userTools = getUserTools();
+        return [...DEFAULT_TOOLS, ...userTools];
+    }
+
     const CATEGORIES = [
         "영감 & 레퍼런스 (Inspiration)",
         "무료 소스 & 에셋 (Assets)",
@@ -214,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // ---------------------------------------------------------
-    // 2. 사이드바 및 네비게이션 기능
+    // 3. UI 및 이벤트 리스너
     // ---------------------------------------------------------
     function toggleSidebar() {
         const isMobile = window.innerWidth < 768;
@@ -249,17 +267,17 @@ document.addEventListener('DOMContentLoaded', () => {
         currentCategory = '전체';
         updateNavUI();
         renderCategoryTabs();
-        filterTools();
+        renderTools(); // 필터 대신 렌더 호출
     });
 
     navFavoritesBtn.addEventListener('click', () => {
         currentView = 'favorites';
         updateNavUI();
-        filterTools();
+        renderTools();
     });
 
     // ---------------------------------------------------------
-    // 3. 화면 그리기 (카테고리, 카드 리스트)
+    // 4. 카드 렌더링
     // ---------------------------------------------------------
     function renderCategoryTabs() {
         const tabsContainer = document.getElementById('category-tabs');
@@ -268,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const allTabs = ["전체", ...CATEGORIES];
         allTabs.forEach(cat => {
             const btn = document.createElement('button');
-            // 텍스트가 너무 길 경우를 대비해 괄호 앞까지만 표시하거나, 그냥 다 표시
             btn.innerHTML = cat.replace(/\s\((.*?)\)/, ' <span class="text-xs font-normal opacity-70">($1)</span>');
             
             btn.className = "px-4 py-2 text-sm font-bold rounded-full transition-all duration-200 border whitespace-nowrap";
@@ -282,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentView = 'all';
                 renderCategoryTabs();
                 updateNavUI();
-                filterTools();
+                renderTools();
             };
             tabsContainer.appendChild(btn);
         });
@@ -303,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 소스 뱃지 HTML 생성
         const sourceBadge = source === 'internal' 
             ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-brand-100 text-brand-700 border border-brand-200 ml-2 shadow-sm">🏢 우리팀</span>`
             : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200 ml-2">🌐 외부</span>`;
@@ -312,13 +328,23 @@ document.addEventListener('DOMContentLoaded', () => {
         card.dataset.id = id;
         card.dataset.category = category || '';
         card.className = `group relative flex flex-col p-6 bg-white border ${source === 'internal' ? 'border-brand-100 ring-1 ring-brand-50' : 'border-slate-200'} rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:border-brand-500/50`;
+        
+        // ★ 변경점: opacity 클래스를 제거하여 버튼이 항상 보이도록 수정 (모바일/프리뷰 대응)
         card.innerHTML = `
-            <button class="tool-delete-btn absolute top-4 left-4 p-2 rounded-full transition-all hover:bg-red-50 opacity-0 group-hover:opacity-100 z-10" title="관리자 삭제" data-id="${id}">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-            </button>
-            <button class="tool-favorite-btn absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10" data-id="${id}">
+            <div class="absolute top-4 left-4 z-10 flex gap-1">
+                <button type="button" class="tool-edit-btn p-2 rounded-full hover:bg-slate-100 bg-white shadow-sm border border-slate-100" title="수정" data-id="${id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500 hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+                <button type="button" class="tool-delete-btn p-2 rounded-full hover:bg-red-50 bg-white shadow-sm border border-slate-100" title="삭제" data-id="${id}">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+            
+            <button type="button" class="tool-favorite-btn absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10" data-id="${id}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 heart-icon ${isFav ? 'active' : 'text-slate-300'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="${isFav ? 'currentColor' : 'none'}">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                 </svg>
@@ -343,28 +369,67 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     }
 
-    function filterTools() {
+    function renderTools() {
+        toolGrid.innerHTML = '';
+        const allTools = getAllTools();
         const searchTerm = searchInput.value.toLowerCase().trim();
-        Array.from(toolGrid.children).forEach(card => {
-            const text = card.textContent.toLowerCase();
-            const cat = card.dataset.category;
-            const id = card.dataset.id;
+
+        const filteredTools = allTools.filter(tool => {
+            const text = tool.name.toLowerCase() + tool.description.toLowerCase();
             const matchesSearch = text.includes(searchTerm);
-            const matchesCategory = currentCategory === '전체' || cat === currentCategory;
-            const matchesView = currentView === 'all' || favorites.includes(id);
-            card.style.display = (matchesSearch && matchesCategory && matchesView) ? '' : 'none';
+            const matchesCategory = currentCategory === '전체' || tool.category === currentCategory;
+            const matchesView = currentView === 'all' || favorites.includes(tool.id);
+            return matchesSearch && matchesCategory && matchesView;
+        });
+
+        filteredTools.forEach(tool => {
+            toolGrid.appendChild(createToolCard(tool));
         });
     }
 
     // ---------------------------------------------------------
-    // 4. 모달창 및 등록 폼 기능
+    // 5. 모달창: 등록 및 수정 (핵심 로직 변경)
     // ---------------------------------------------------------
-    addToolBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    function openModal(mode = 'create', toolData = null) {
+        addToolForm.reset();
+        modal.classList.remove('hidden');
+        
+        if (mode === 'edit' && toolData) {
+            modalTitle.innerText = "툴 정보 수정하기";
+            submitBtn.innerText = "수정완료";
+            
+            document.getElementById('tool-id').value = toolData.id;
+            document.getElementById('tool-name').value = toolData.name;
+            document.getElementById('tool-creator').value = toolData.creator;
+            document.getElementById('tool-category').value = toolData.category;
+            document.getElementById('tool-description').value = toolData.description;
+            document.getElementById('tool-url').value = toolData.url;
+            
+            document.getElementById('tool-password').value = toolData.password || ''; 
+            
+            // 라디오 버튼 설정
+            const radios = document.getElementsByName('tool-source');
+            for(const r of radios) {
+                if(r.value === toolData.source) r.checked = true;
+            }
+        } else {
+            modalTitle.innerText = "새로운 툴 등록하기";
+            submitBtn.innerText = "등록하기";
+            document.getElementById('tool-id').value = ""; // ID 비움
+            // 라디오 기본값 리셋
+            document.getElementsByName('tool-source')[0].checked = true;
+        }
+    }
+
+    addToolBtn.addEventListener('click', () => openModal('create'));
     closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
     cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
 
     addToolForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        const toolId = document.getElementById('tool-id').value;
+        const password = document.getElementById('tool-password').value;
         
         // 라디오 버튼 값 가져오기
         const sourceInputs = document.getElementsByName('tool-source');
@@ -376,63 +441,129 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const newTool = {
-            id: 'tool-' + Date.now(),
+        const formData = {
             name: document.getElementById('tool-name').value,
             creator: document.getElementById('tool-creator').value,
             category: document.getElementById('tool-category').value,
             description: document.getElementById('tool-description').value,
             url: document.getElementById('tool-url').value,
-            source: selectedSource // 저장
+            source: selectedSource,
+            password: password // 비밀번호 저장
         };
-        const tools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
-        tools.push(newTool);
-        localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(tools));
-        toolGrid.appendChild(createToolCard(newTool));
-        addToolForm.reset();
-        // 폼 리셋 후 라디오 버튼 기본값 재설정
-        sourceInputs[0].checked = true;
-        
+
+        let userTools = getUserTools();
+
+        if (toolId) {
+            // 수정 모드
+            const index = userTools.findIndex(t => t.id === toolId);
+            if (index !== -1) {
+                userTools[index] = { ...userTools[index], ...formData, id: toolId };
+                alert("수정되었습니다.");
+            } else {
+                alert("수정할 툴을 찾을 수 없습니다. 문제가 지속되면 새로고침 후 다시 시도해주세요.");
+            }
+        } else {
+            // 등록 모드
+            const newTool = {
+                id: 'tool-' + Date.now(),
+                ...formData
+            };
+            userTools.push(newTool);
+            alert("등록되었습니다.");
+        }
+
+        localStorage.setItem(USER_TOOLS_STORAGE_KEY, JSON.stringify(userTools));
         modal.classList.add('hidden');
-        filterTools();
+        renderTools();
     });
 
     // ---------------------------------------------------------
-    // 6. 즐겨찾기 및 삭제(관리자) 기능
+    // 6. 삭제 및 수정 이벤트 위임 (비밀번호 체크)
     // ---------------------------------------------------------
     toolGrid.addEventListener('click', (e) => {
-        // 1. 삭제 버튼 클릭 시 (비밀번호 체크)
         const deleteBtn = e.target.closest('.tool-delete-btn');
-        if (deleteBtn) {
-            e.stopPropagation(); // 카드 클릭 이벤트 방지
-            const pwd = prompt("관리자 권한: 툴을 삭제하려면 비밀번호를 입력하세요.");
-            if (pwd === ADMIN_PASSWORD) {
-                const id = deleteBtn.dataset.id;
-                if(confirm("정말로 이 툴을 삭제하시겠습니까?")) {
-                    let tools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
-                    tools = tools.filter(t => t.id !== id);
-                    localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(tools));
-                    
-                    // UI에서 제거
-                    const card = deleteBtn.closest('.group');
-                    if(card) card.remove();
+        const editBtn = e.target.closest('.tool-edit-btn');
+        const favBtn = e.target.closest('.tool-favorite-btn');
 
+        // 6-1. 삭제
+        if (deleteBtn) {
+            e.stopPropagation();
+            const id = deleteBtn.dataset.id;
+            const allTools = getAllTools();
+            const targetTool = allTools.find(t => t.id === id);
+
+            if (!targetTool) return;
+
+            // 기본 툴인지 확인
+            const isDefault = DEFAULT_TOOLS.some(t => t.id === id);
+            
+            const pwd = prompt("삭제하려면 비밀번호를 입력하세요.\n(기본 툴의 경우 관리자 비밀번호)");
+            if (pwd === null) return; // 취소
+
+            let isAuthorized = false;
+            if (isDefault) {
+                if (pwd === ADMIN_PASSWORD) isAuthorized = true;
+                else alert("관리자 비밀번호가 일치하지 않습니다.");
+            } else {
+                // 사용자 툴: 해당 툴의 비번과 일치하는지 확인 (혹은 관리자 비번)
+                if ((targetTool.password && pwd === targetTool.password) || pwd === ADMIN_PASSWORD) isAuthorized = true;
+                else alert("비밀번호가 일치하지 않습니다.");
+            }
+
+            if (isAuthorized && confirm("정말로 삭제하시겠습니까?")) {
+                if (isDefault) {
+                    alert("기본 툴은 화면에서만 숨겨지며, 새로고침 시 복구될 수 있습니다. (영구 삭제는 코드 수정 필요)");
+                    // 이번 세션에서만 안 보이게 하려면 필터링 로직이 복잡해지므로, 
+                    // 간단히 여기서는 사용자 툴 삭제만 완벽 지원하고 기본 툴은 경고만 줍니다.
+                } else {
+                    let userTools = getUserTools();
+                    userTools = userTools.filter(t => t.id !== id);
+                    localStorage.setItem(USER_TOOLS_STORAGE_KEY, JSON.stringify(userTools));
+                    
                     // 즐겨찾기에서도 제거
                     favorites = favorites.filter(fid => fid !== id);
                     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-
-                    alert("성공적으로 삭제되었습니다.");
+                    
+                    renderTools();
                 }
-            } else if (pwd !== null) { // 취소 버튼 누른 게 아니라면
+            }
+            return;
+        }
+
+        // 6-2. 수정
+        if (editBtn) {
+            e.stopPropagation();
+            const id = editBtn.dataset.id;
+            const allTools = getAllTools();
+            const targetTool = allTools.find(t => t.id === id);
+
+            if (!targetTool) {
+                alert("툴 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            // 기본 툴 수정 시도
+            const isDefault = DEFAULT_TOOLS.some(t => t.id === id);
+            if (isDefault) {
+                alert("기본 제공 툴은 수정할 수 없습니다.");
+                return;
+            }
+
+            const pwd = prompt("수정하려면 등록 시 설정한 비밀번호를 입력하세요.");
+            if (pwd === null) return; // 취소
+
+            // 비밀번호 확인
+            if ((targetTool.password && pwd === targetTool.password) || pwd === ADMIN_PASSWORD) {
+                openModal('edit', targetTool);
+            } else {
                 alert("비밀번호가 일치하지 않습니다.");
             }
             return;
         }
 
-        // 2. 즐겨찾기 버튼 클릭 시
-        const btn = e.target.closest('.tool-favorite-btn');
-        if (btn) {
-            const id = btn.dataset.id;
+        // 6-3. 즐겨찾기
+        if (favBtn) {
+            const id = favBtn.dataset.id;
             if (favorites.includes(id)) {
                 favorites = favorites.filter(favId => favId !== id);
             } else {
@@ -440,39 +571,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
             
-            const svg = btn.querySelector('svg');
+            const svg = favBtn.querySelector('svg');
             const isFav = favorites.includes(id);
             svg.classList.toggle('active', isFav);
             svg.setAttribute('fill', isFav ? 'currentColor' : 'none');
             
-            // 즐겨찾기 탭 보고 있을 때 바로 리스트 갱신
-            if (currentView === 'favorites') filterTools();
+            if (currentView === 'favorites') renderTools();
         }
     });
 
-    searchInput.addEventListener('input', filterTools);
+    searchInput.addEventListener('input', renderTools);
 
     // ---------------------------------------------------------
-    // 7. 초기 실행 (저장된 툴 불러오기 등)
+    // 7. 초기 실행
     // ---------------------------------------------------------
-    // 저장된 툴이 없으면 시니어 디자이너 추천 툴(DEFAULT_TOOLS)을 로드합니다.
-    let storedTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY));
-    // 기존 데이터에 source 필드가 없는 경우를 대비한 마이그레이션 로직은 복잡해질 수 있으므로,
-    // 간단히 '없으면 기본값'으로 간주하거나, 아예 데이터를 초기화할 수도 있습니다.
-    // 여기서는 저장된 데이터가 아예 없을 때만 DEFAULT_TOOLS를 사용합니다.
-    if (!storedTools || storedTools.length === 0) {
-        storedTools = DEFAULT_TOOLS;
-    } else {
-        // 기존 데이터가 있어도, 이번 요청에 따라 모든 툴의 '등록자'를 '관리자'로 업데이트합니다.
-        storedTools = storedTools.map(tool => ({
-            ...tool,
-            creator: '관리자'
-        }));
-    }
-    // 업데이트된 데이터를 다시 저장하여 반영
-    localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(storedTools));
-
-    storedTools.forEach(tool => toolGrid.appendChild(createToolCard(tool)));
     renderCategoryTabs();
     updateNavUI();
+    renderTools();
+
+    // ★ 개발자/관리자를 위한 데이터 백업 팁 (콘솔에 출력)
+    console.log("%c[관리자 팁] 등록된 툴을 코드(GitHub)에 영구 저장하려면?", "color: #f97316; font-weight: bold; font-size: 14px; margin-top: 10px;");
+    console.log("%c아래 코드를 실행하여 JSON을 복사한 뒤, index.js의 DEFAULT_TOOLS 배열에 붙여넣으세요:", "color: #475569;");
+    console.log(`console.log(JSON.stringify(JSON.parse(localStorage.getItem('${USER_TOOLS_STORAGE_KEY}')), null, 2))`);
 });
