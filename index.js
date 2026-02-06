@@ -18,12 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const navFavoritesBtn = document.getElementById('nav-favorites-btn');
     const aiEnhanceBtn = document.getElementById('ai-enhance-btn');
     const descriptionInput = document.getElementById('tool-description');
-    const quoteSlider = document.getElementById('quote-slider');
 
     // 데이터를 저장할 이름표들
     const TOOLS_STORAGE_KEY = 'ai-design-hub-tools';
     const FAVORITES_STORAGE_KEY = 'ai-design-hub-favorites';
-    const API_KEY_STORAGE_KEY = 'gemini_api_key_user'; // API 키 저장소 이름
+    const API_KEY_STORAGE_KEY = 'gemini_api_key_user'; 
+
+    // ★ 관리자 비밀번호 설정 (원하는 비밀번호로 바꾸세요)
+    const ADMIN_PASSWORD = "admin"; 
 
     let currentCategory = "전체";
     let currentView = 'all'; 
@@ -111,6 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
         card.dataset.category = category || '';
         card.className = "group relative flex flex-col p-6 bg-white border border-slate-200 rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:border-brand-500/50";
         card.innerHTML = `
+            <button class="tool-delete-btn absolute top-4 left-4 p-2 rounded-full transition-all hover:bg-red-50 opacity-0 group-hover:opacity-100 z-10" title="관리자 삭제" data-id="${id}">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
             <button class="tool-favorite-btn absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-slate-50 z-10" data-id="${id}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 heart-icon ${isFav ? 'active' : 'text-slate-300'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="${isFav ? 'currentColor' : 'none'}">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -242,9 +249,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 6. 즐겨찾기 클릭 기능
+    // 6. 즐겨찾기 및 삭제(관리자) 기능
     // ---------------------------------------------------------
     toolGrid.addEventListener('click', (e) => {
+        // 1. 삭제 버튼 클릭 시 (비밀번호 체크)
+        const deleteBtn = e.target.closest('.tool-delete-btn');
+        if (deleteBtn) {
+            e.stopPropagation(); // 카드 클릭 이벤트 방지
+            const pwd = prompt("관리자 권한: 툴을 삭제하려면 비밀번호를 입력하세요.");
+            if (pwd === ADMIN_PASSWORD) {
+                const id = deleteBtn.dataset.id;
+                if(confirm("정말로 이 툴을 삭제하시겠습니까?")) {
+                    let tools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
+                    tools = tools.filter(t => t.id !== id);
+                    localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(tools));
+                    
+                    // UI에서 제거
+                    const card = deleteBtn.closest('.group');
+                    if(card) card.remove();
+
+                    // 즐겨찾기에서도 제거
+                    favorites = favorites.filter(fid => fid !== id);
+                    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+
+                    alert("성공적으로 삭제되었습니다.");
+                }
+            } else if (pwd !== null) { // 취소 버튼 누른 게 아니라면
+                alert("비밀번호가 일치하지 않습니다.");
+            }
+            return;
+        }
+
+        // 2. 즐겨찾기 버튼 클릭 시
         const btn = e.target.closest('.tool-favorite-btn');
         if (btn) {
             const id = btn.dataset.id;
@@ -274,25 +310,4 @@ document.addEventListener('DOMContentLoaded', () => {
     storedTools.forEach(tool => toolGrid.appendChild(createToolCard(tool)));
     renderCategoryTabs();
     updateNavUI();
-
-    // 롤링 문구 (자동 슬라이드)
-    const quotes = [
-        "디자인은 말보다 크게 말한다",
-        "단순함은 궁극의 정교함이다",
-        "영감은 일하는 중에 찾아온다",
-        "창의성은 즐거움을 느끼는 지성이다",
-        "완벽함은 더 이상 뺄 것이 없을 때다"
-    ];
-    let quoteIdx = 0;
-    function updateQuote() {
-        if (!quoteSlider) return;
-        quoteSlider.style.opacity = '0';
-        setTimeout(() => {
-            quoteSlider.innerHTML = `<div class="h-14 flex items-center justify-center font-bold text-slate-800 text-lg">${quotes[quoteIdx]}</div>`;
-            quoteSlider.style.opacity = '1';
-            quoteIdx = (quoteIdx + 1) % quotes.length;
-        }, 500);
-    }
-    updateQuote();
-    setInterval(updateQuote, 5000);
 });
