@@ -17,6 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modal-title');
     const submitBtn = document.getElementById('submit-btn');
 
+    // 데이터 매니저 UI
+    const dataManagerBtn = document.getElementById('data-manager-btn');
+    const dataManagerModal = document.getElementById('data-manager-modal');
+    const closeDataModalBtn = document.getElementById('close-data-modal-btn');
+    const tabExport = document.getElementById('tab-export');
+    const tabImport = document.getElementById('tab-import');
+    const panelExport = document.getElementById('panel-export');
+    const panelImport = document.getElementById('panel-import');
+    const exportArea = document.getElementById('export-area');
+    const importArea = document.getElementById('import-area');
+    const copyDataBtn = document.getElementById('copy-data-btn');
+    const shareNativeBtn = document.getElementById('share-native-btn'); // New Button
+    const importDataBtn = document.getElementById('import-data-btn');
+
     // 데이터를 저장할 이름표들
     // ★ 중요: 이제 이 키에는 '사용자가 직접 추가한 툴'만 저장합니다.
     const USER_TOOLS_STORAGE_KEY = 'ai-design-hub-user-tools-v2';
@@ -227,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "폰트 & 타이포그래피 (Typography)",
         "컬러 & 배색 (Color Tools)",
         "AI & 편의 도구 (AI & Utilities)",
+        "인쇄 & 발주 (Print & Production)",
         "트렌드 & 아티클 (News & Career)",
         "기타 (Etc)"
     ];
@@ -394,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 5. 모달창: 등록 및 수정 (핵심 로직 변경)
+    // 5. 모달창: 등록 및 수정
     // ---------------------------------------------------------
     function openModal(mode = 'create', toolData = null) {
         addToolForm.reset();
@@ -413,7 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.getElementById('tool-password').value = toolData.password || ''; 
             
-            // 라디오 버튼 설정
             const radios = document.getElementsByName('tool-source');
             for(const r of radios) {
                 if(r.value === toolData.source) r.checked = true;
@@ -422,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.innerText = "새로운 툴 등록하기";
             submitBtn.innerText = "등록하기";
             document.getElementById('tool-id').value = ""; // ID 비움
-            // 라디오 기본값 리셋
             document.getElementsByName('tool-source')[0].checked = true;
         }
     }
@@ -436,8 +449,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const toolId = document.getElementById('tool-id').value;
         const password = document.getElementById('tool-password').value;
-        
-        // 라디오 버튼 값 가져오기
         const sourceInputs = document.getElementsByName('tool-source');
         let selectedSource = 'external';
         for (const input of sourceInputs) {
@@ -454,22 +465,20 @@ document.addEventListener('DOMContentLoaded', () => {
             description: document.getElementById('tool-description').value,
             url: document.getElementById('tool-url').value,
             source: selectedSource,
-            password: password // 비밀번호 저장
+            password: password
         };
 
         let userTools = getUserTools();
 
         if (toolId) {
-            // 수정 모드
             const index = userTools.findIndex(t => t.id === toolId);
             if (index !== -1) {
                 userTools[index] = { ...userTools[index], ...formData, id: toolId };
                 alert("수정되었습니다.");
             } else {
-                alert("수정할 툴을 찾을 수 없습니다. 문제가 지속되면 새로고침 후 다시 시도해주세요.");
+                alert("수정할 툴을 찾을 수 없습니다.");
             }
         } else {
-            // 등록 모드
             const newTool = {
                 id: 'tool-' + Date.now(),
                 ...formData
@@ -484,14 +493,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 6. 삭제 및 수정 이벤트 위임 (비밀번호 체크)
+    // 6. 삭제 및 수정 이벤트 위임
     // ---------------------------------------------------------
     toolGrid.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.tool-delete-btn');
         const editBtn = e.target.closest('.tool-edit-btn');
         const favBtn = e.target.closest('.tool-favorite-btn');
 
-        // 6-1. 삭제
         if (deleteBtn) {
             e.stopPropagation();
             const id = deleteBtn.dataset.id;
@@ -500,55 +508,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!targetTool) return;
 
-            // 기본 툴인지 확인
             const isDefault = DEFAULT_TOOLS.some(t => t.id === id);
-            
             const pwd = prompt("삭제하려면 비밀번호를 입력하세요.\n(기본 툴의 경우 관리자 비밀번호)");
-            if (pwd === null) return; // 취소
+            if (pwd === null) return; 
 
             let isAuthorized = false;
             if (isDefault) {
                 if (pwd === ADMIN_PASSWORD) isAuthorized = true;
                 else alert("관리자 비밀번호가 일치하지 않습니다.");
             } else {
-                // 사용자 툴: 해당 툴의 비번과 일치하는지 확인 (혹은 관리자 비번)
                 if ((targetTool.password && pwd === targetTool.password) || pwd === ADMIN_PASSWORD) isAuthorized = true;
                 else alert("비밀번호가 일치하지 않습니다.");
             }
 
             if (isAuthorized && confirm("정말로 삭제하시겠습니까?")) {
                 if (isDefault) {
-                    alert("기본 툴은 화면에서만 숨겨지며, 새로고침 시 복구될 수 있습니다. (영구 삭제는 코드 수정 필요)");
-                    // 이번 세션에서만 안 보이게 하려면 필터링 로직이 복잡해지므로, 
-                    // 간단히 여기서는 사용자 툴 삭제만 완벽 지원하고 기본 툴은 경고만 줍니다.
+                    alert("기본 툴은 화면에서만 숨겨지며, 새로고침 시 복구될 수 있습니다.");
                 } else {
                     let userTools = getUserTools();
                     userTools = userTools.filter(t => t.id !== id);
                     localStorage.setItem(USER_TOOLS_STORAGE_KEY, JSON.stringify(userTools));
                     
-                    // 즐겨찾기에서도 제거
                     favorites = favorites.filter(fid => fid !== id);
                     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-                    
                     renderTools();
                 }
             }
             return;
         }
 
-        // 6-2. 수정
         if (editBtn) {
             e.stopPropagation();
             const id = editBtn.dataset.id;
             const allTools = getAllTools();
             const targetTool = allTools.find(t => t.id === id);
 
-            if (!targetTool) {
-                alert("툴 정보를 찾을 수 없습니다.");
-                return;
-            }
+            if (!targetTool) return;
 
-            // 기본 툴 수정 시도
             const isDefault = DEFAULT_TOOLS.some(t => t.id === id);
             if (isDefault) {
                 alert("기본 제공 툴은 수정할 수 없습니다.");
@@ -556,9 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const pwd = prompt("수정하려면 등록 시 설정한 비밀번호를 입력하세요.");
-            if (pwd === null) return; // 취소
+            if (pwd === null) return; 
 
-            // 비밀번호 확인
             if ((targetTool.password && pwd === targetTool.password) || pwd === ADMIN_PASSWORD) {
                 openModal('edit', targetTool);
             } else {
@@ -567,7 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 6-3. 즐겨찾기
         if (favBtn) {
             const id = favBtn.dataset.id;
             if (favorites.includes(id)) {
@@ -589,13 +583,124 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', renderTools);
 
     // ---------------------------------------------------------
-    // 7. 초기 실행
+    // 7. 데이터 관리 (Export / Import) 로직 추가
+    // ---------------------------------------------------------
+    if (dataManagerBtn) {
+        dataManagerBtn.addEventListener('click', () => {
+            dataManagerModal.classList.remove('hidden');
+            // 기본은 Export 탭
+            tabExport.click();
+        });
+    }
+
+    if (closeDataModalBtn) {
+        closeDataModalBtn.addEventListener('click', () => {
+            dataManagerModal.classList.add('hidden');
+        });
+    }
+
+    // 탭 전환 로직
+    tabExport.addEventListener('click', () => {
+        tabExport.className = "px-4 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-500 transition-colors";
+        tabImport.className = "px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors";
+        panelExport.classList.remove('hidden');
+        panelImport.classList.add('hidden');
+
+        // 현재 저장된 사용자 툴 데이터를 가져와서 표시
+        const data = getUserTools();
+        exportArea.value = JSON.stringify(data, null, 2);
+    });
+
+    tabImport.addEventListener('click', () => {
+        tabImport.className = "px-4 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-500 transition-colors";
+        tabExport.className = "px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors";
+        panelImport.classList.remove('hidden');
+        panelExport.classList.add('hidden');
+        importArea.value = ""; // 초기화
+    });
+
+    // 시스템 공유하기 (Native Share)
+    if (shareNativeBtn) {
+        shareNativeBtn.addEventListener('click', () => {
+            const dataStr = exportArea.value;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AI Design Hub - My Tools',
+                    text: dataStr,
+                })
+                .then(() => console.log('Shared successfully'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                // Fallback for browsers that don't support share
+                alert("이 브라우저에서는 공유 기능을 지원하지 않습니다.\n'코드 복사' 버튼을 이용해주세요.");
+                copyDataBtn.click();
+            }
+        });
+    }
+
+    // 코드 복사하기
+    copyDataBtn.addEventListener('click', () => {
+        exportArea.select();
+        document.execCommand('copy'); // Fallback
+        
+        // 최신 API 시도
+        if(navigator.clipboard) {
+            navigator.clipboard.writeText(exportArea.value).then(() => {
+                alert("코드가 클립보드에 복사되었습니다.\n슬랙이나 메신저에 붙여넣어 공유하세요!");
+            }).catch(() => {
+                alert("복사되었습니다.");
+            });
+        } else {
+            alert("복사되었습니다.");
+        }
+    });
+
+    // 데이터 불러오기 (Merge)
+    importDataBtn.addEventListener('click', () => {
+        const raw = importArea.value.trim();
+        if (!raw) {
+            alert("코드를 입력해주세요.");
+            return;
+        }
+        try {
+            const newTools = JSON.parse(raw);
+            if (!Array.isArray(newTools)) {
+                alert("올바른 데이터 형식이 아닙니다 (배열이어야 함).");
+                return;
+            }
+
+            const currentTools = getUserTools();
+            // ID 기준 중복 제거 병합 (새로 들어온 데이터가 우선 혹은 기존 데이터 유지? -> 여기선 ID가 겹치면 기존꺼 유지, 없으면 추가 방식 채택)
+            // 혹은 "팀원이 준 최신본"이라고 가정하고 덮어쓰기? 
+            // 안전하게: 기존에 없는 ID만 추가 (Merge)
+            
+            let addedCount = 0;
+            const existingIds = new Set(currentTools.map(t => t.id));
+            
+            newTools.forEach(tool => {
+                if (!existingIds.has(tool.id)) {
+                    currentTools.push(tool);
+                    existingIds.add(tool.id);
+                    addedCount++;
+                }
+            });
+
+            localStorage.setItem(USER_TOOLS_STORAGE_KEY, JSON.stringify(currentTools));
+            alert(`${addedCount}개의 새로운 툴이 성공적으로 추가되었습니다! 페이지를 새로고침합니다.`);
+            location.reload();
+
+        } catch (e) {
+            alert("데이터 파싱 오류! 코드가 올바른 JSON 형식인지 확인해주세요.\n" + e.message);
+        }
+    });
+
+    // ---------------------------------------------------------
+    // 8. 초기 실행
     // ---------------------------------------------------------
     renderCategoryTabs();
     updateNavUI();
     renderTools();
 
-    // ★ 개발자/관리자를 위한 데이터 백업 팁 (콘솔에 출력)
     console.log("%c[관리자 팁] 등록된 툴을 코드(GitHub)에 영구 저장하려면?", "color: #f97316; font-weight: bold; font-size: 14px; margin-top: 10px;");
     console.log("%c아래 코드를 실행하여 JSON을 복사한 뒤, index.js의 DEFAULT_TOOLS 배열에 붙여넣으세요:", "color: #475569;");
     console.log(`console.log(JSON.stringify(JSON.parse(localStorage.getItem('${USER_TOOLS_STORAGE_KEY}')), null, 2))`);
