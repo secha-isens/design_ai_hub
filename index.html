@@ -101,7 +101,7 @@
           </div>
           
           <div class="flex items-center gap-4 flex-1 justify-end">
-              <div class="w-full max-w-md">
+              <div class="w-full max-w-md hidden md:block">
                   <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,11 +111,21 @@
                     <input type="text" id="search-input" placeholder="필요한 AI 툴을 검색하세요..." class="w-full py-2.5 pl-10 pr-4 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
                   </div>
               </div>
+              
+              <!-- Data Manager Button -->
+              <button id="data-manager-btn" class="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm whitespace-nowrap">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  <span class="hidden sm:inline">데이터 관리</span>
+              </button>
+
               <button id="add-tool-btn" class="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-xl hover:bg-brand-600 transition-colors shadow-sm whitespace-nowrap">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                   </svg>
-                  툴 등록하기
+                  <span class="hidden sm:inline">툴 등록하기</span>
+                  <span class="sm:hidden">등록</span>
               </button>
           </div>
         </header>
@@ -132,8 +142,8 @@
     </div>
 
     <!-- Add/Edit Tool Modal -->
-    <div id="add-tool-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 transform transition-all">
+    <div id="add-tool-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 transform transition-all scale-100">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="modal-title" class="text-2xl font-bold text-slate-800">새로운 툴 등록하기</h2>
                 <button id="close-modal-btn" class="p-2 rounded-full hover:bg-slate-100">
@@ -165,6 +175,7 @@
                         <option value="폰트 & 타이포그래피 (Typography)">폰트 & 타이포그래피 (Typography)</option>
                         <option value="컬러 & 배색 (Color Tools)">컬러 & 배색 (Color Tools)</option>
                         <option value="AI & 편의 도구 (AI & Utilities)">AI & 편의 도구 (AI & Utilities)</option>
+                        <option value="인쇄 & 발주 (Print & Production)">인쇄 & 발주 (Print & Production)</option>
                         <option value="트렌드 & 아티클 (News & Career)">트렌드 & 아티클 (News & Career)</option>
                         <option value="기타 (Etc)">기타 (Etc)</option>
                     </select>
@@ -194,6 +205,80 @@
                     <button type="submit" id="submit-btn" class="px-6 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-lg hover:bg-brand-600">등록하기</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Data Manager Modal -->
+    <div id="data-manager-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-8 transform transition-all scale-100 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        로컬 데이터 동기화
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">이 사이트는 <strong>서버가 없는(Serverless)</strong> 정적 웹입니다.<br>아래 코드를 복사하거나 공유하여 팀원과 직접 데이터를 동기화하세요.</p>
+                </div>
+                <button id="close-data-modal-btn" class="p-2 rounded-full hover:bg-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex gap-2 border-b border-slate-200 mb-4">
+                <button id="tab-export" class="px-4 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-500 transition-colors">내보내기 (Export)</button>
+                <button id="tab-import" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">가져오기 (Import)</button>
+            </div>
+
+            <div id="panel-export" class="flex-1 flex flex-col gap-4">
+                <div class="bg-blue-50 text-blue-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <strong>💡 공유 방법:</strong> 아래 코드를 팀원에게 전달하세요. (슬랙, 카카오톡 등)<br>
+                        팀원이 '가져오기' 탭에 이 코드를 붙여넣으면 리스트가 합쳐집니다.
+                    </div>
+                </div>
+                <textarea id="export-area" readonly class="w-full flex-1 p-4 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg focus:outline-none resize-none h-40" onclick="this.select()"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button id="share-native-btn" class="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        공유하기
+                    </button>
+                    <button id="copy-data-btn" class="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-slate-800 rounded-lg hover:bg-slate-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        코드 복사
+                    </button>
+                </div>
+            </div>
+
+            <div id="panel-import" class="flex-1 flex flex-col gap-4 hidden">
+                <div class="bg-amber-50 text-amber-800 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                        <strong>⚠️ 주의:</strong> 팀원에게 받은 코드를 아래에 붙여넣으세요.<br>기존 리스트는 유지되며, 새로운 툴만 자동으로 추가(Merge)됩니다.
+                    </div>
+                </div>
+                <textarea id="import-area" placeholder='여기에 코드를 붙여넣으세요... (예: [{"id":"...","name":"..."}])' class="w-full flex-1 p-4 text-xs font-mono bg-white border border-slate-200 rounded-lg focus:border-brand-500 focus:ring-1 focus:ring-brand-500 resize-none h-40"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button id="import-data-btn" class="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        데이터 불러오기 (Merge)
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="index.js" type="module"></script>
