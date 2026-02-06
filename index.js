@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 document.addEventListener('DOMContentLoaded', () => {
     // ---------------------------------------------------------
-    // 1. UI Elements & State
+    // 1. 설정 및 변수 (UI 요소 가져오기)
     // ---------------------------------------------------------
     const addToolBtn = document.getElementById('add-tool-btn');
     const modal = document.getElementById('add-tool-modal');
@@ -20,16 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const descriptionInput = document.getElementById('tool-description');
     const quoteSlider = document.getElementById('quote-slider');
 
+    // 데이터를 저장할 이름표들
     const TOOLS_STORAGE_KEY = 'ai-design-hub-tools';
     const FAVORITES_STORAGE_KEY = 'ai-design-hub-favorites';
+    const API_KEY_STORAGE_KEY = 'gemini_api_key_user'; // API 키 저장소 이름
 
     let currentCategory = "전체";
-    let currentView = 'all'; // 'all' or 'favorites'
+    let currentView = 'all'; 
     let favorites = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)) || [];
     const CATEGORIES = ["무료 외부 추천 툴", "우리 직원이 직접 만든 툴"];
 
     // ---------------------------------------------------------
-    // 2. Navigation & Sidebar Logic
+    // 2. 사이드바 및 네비게이션 기능
     // ---------------------------------------------------------
     function toggleSidebar() {
         const isMobile = window.innerWidth < 768;
@@ -40,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             sidebar.classList.toggle('md:w-0');
             sidebar.classList.toggle('md:border-none');
-            document.getElementById('desktop-logo').classList.toggle('hidden', sidebar.classList.contains('md:w-0'));
+            const logo = document.getElementById('desktop-logo');
+            if(logo) logo.classList.toggle('hidden', sidebar.classList.contains('md:w-0'));
         }
     }
     if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
@@ -73,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 3. Category & Tool Rendering
+    // 3. 화면 그리기 (카테고리, 카드 리스트)
     // ---------------------------------------------------------
     function renderCategoryTabs() {
         const tabsContainer = document.getElementById('category-tabs');
@@ -143,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
-    // 4. Modal & Form Logic
+    // 4. 모달창 및 등록 폼 기능
     // ---------------------------------------------------------
     addToolBtn.addEventListener('click', () => modal.classList.remove('hidden'));
     closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
@@ -170,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 5. AI Enhance Logic (Robust Initialization)
+    // 5. ★★★ AI 다듬기 기능 (여기가 핵심!) ★★★
     // ---------------------------------------------------------
     aiEnhanceBtn.addEventListener('click', async () => {
         const currentText = descriptionInput.value.trim();
@@ -179,37 +182,67 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // process.env safe check
-        const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : null;
+        // 1. 브라우저에 저장된 키가 있는지 확인합니다.
+        let apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+
+        // 2. 키가 없으면 사용자에게 팝업창으로 물어봅니다.
         if (!apiKey) {
-            alert('API 키가 설정되지 않았습니다. 환경 변수를 확인해주세요.');
-            return;
+            const userKey = prompt("Gemini API 키를 입력해주세요.\n(발급받은 키를 여기에 붙여넣으세요. 서버가 아닌 브라우저에 안전하게 저장됩니다.)");
+            
+            // 취소 버튼을 눌렀거나 빈 값을 입력한 경우
+            if (!userKey || userKey.trim() === '') {
+                return; // 아무것도 하지 않고 종료
+            }
+            
+            // 입력받은 키 저장
+            apiKey = userKey.trim();
+            localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
         }
 
+        // 3. 로딩 표시 시작
         aiEnhanceBtn.disabled = true;
-        const originalText = aiEnhanceBtn.textContent;
-        aiEnhanceBtn.textContent = "생성 중...";
+        const originalContent = aiEnhanceBtn.innerHTML;
+        aiEnhanceBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-brand-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            생성 중...`;
 
         try {
+            // 4. 입력받은 키로 AI 연결 시도
             const ai = new GoogleGenAI({ apiKey });
+            
+            // 5. AI에게 요청
             const response = await ai.models.generateContent({
                 model: 'gemini-3-flash-preview',
                 contents: `디자인 업무 자동화 툴 설명을 임팩트 있는 짧은 한 문장으로 다듬어줘. 결과만 출력해: ${currentText}`,
             });
+
+            // 6. 결과 반영
             if (response.text) {
                 descriptionInput.value = response.text.trim();
             }
+
         } catch (error) {
             console.error('AI Error:', error);
-            alert('AI 요청 중 오류가 발생했습니다.');
+            
+            // 키가 틀렸거나 권한이 없는 경우
+            if (error.message.includes('403') || error.message.includes('key') || error.toString().includes('API_KEY')) {
+                alert('입력하신 API 키가 올바르지 않습니다. 다시 확인해주세요.');
+                localStorage.removeItem(API_KEY_STORAGE_KEY); // 잘못된 키 삭제
+            } else {
+                alert('AI 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
         } finally {
+            // 7. 로딩 끝, 원래 버튼으로 복구
             aiEnhanceBtn.disabled = false;
-            aiEnhanceBtn.textContent = originalText;
+            aiEnhanceBtn.innerHTML = originalContent;
         }
     });
 
     // ---------------------------------------------------------
-    // 6. Favorites Interaction
+    // 6. 즐겨찾기 클릭 기능
     // ---------------------------------------------------------
     toolGrid.addEventListener('click', (e) => {
         const btn = e.target.closest('.tool-favorite-btn');
@@ -221,10 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 favorites.push(id);
             }
             localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+            
             const svg = btn.querySelector('svg');
             const isFav = favorites.includes(id);
             svg.classList.toggle('active', isFav);
             svg.setAttribute('fill', isFav ? 'currentColor' : 'none');
+            
+            // 즐겨찾기 탭 보고 있을 때 바로 리스트 갱신
             if (currentView === 'favorites') filterTools();
         }
     });
@@ -232,13 +268,14 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', filterTools);
 
     // ---------------------------------------------------------
-    // 7. Initial Load & Quote Slider
+    // 7. 초기 실행 (저장된 툴 불러오기 등)
     // ---------------------------------------------------------
     const storedTools = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY)) || [];
     storedTools.forEach(tool => toolGrid.appendChild(createToolCard(tool)));
     renderCategoryTabs();
     updateNavUI();
 
+    // 롤링 문구 (자동 슬라이드)
     const quotes = [
         "디자인은 말보다 크게 말한다",
         "단순함은 궁극의 정교함이다",
