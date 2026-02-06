@@ -144,32 +144,41 @@
             </div>
             <form id="add-tool-form" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 이름 *</label>
-                    <input type="text" id="tool-name" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 제작자 *</label>
-                    <input type="text" id="tool-creator" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+                    <label class="block text-sm font-bold text-slate-600 mb-2">구분 (Source) *</label>
+                    <div class="flex gap-4 p-1">
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <input type="radio" name="tool-source" value="external" checked class="w-4 h-4 text-brand-500 border-slate-300 focus:ring-brand-500">
+                            <span class="text-slate-700">🌐 외부 추천 툴</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <input type="radio" name="tool-source" value="internal" class="w-4 h-4 text-brand-500 border-slate-300 focus:ring-brand-500">
+                            <span class="text-slate-700 font-bold text-brand-600">🏢 우리팀 제작</span>
+                        </label>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-600 mb-1">카테고리 *</label>
                     <select id="tool-category" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
-                        <option value="무료 외부 추천 툴">무료 외부 추천 툴</option>
-                        <option value="우리 직원이 직접 만든 툴">우리 직원이 직접 만든 툴</option>
+                        <option value="영감 & 레퍼런스 (Inspiration)">영감 & 레퍼런스 (Inspiration)</option>
+                        <option value="무료 소스 & 에셋 (Assets)">무료 소스 & 에셋 (Assets)</option>
+                        <option value="폰트 & 타이포그래피 (Typography)">폰트 & 타이포그래피 (Typography)</option>
+                        <option value="컬러 & 배색 (Color Tools)">컬러 & 배색 (Color Tools)</option>
+                        <option value="AI & 편의 도구 (AI & Utilities)">AI & 편의 도구 (AI & Utilities)</option>
+                        <option value="트렌드 & 아티클 (News & Career)">트렌드 & 아티클 (News & Career)</option>
+                        <option value="기타 (Etc)">기타 (Etc)</option>
                     </select>
                 </div>
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-sm font-bold text-slate-600">툴 설명 *</label>
-                        <button type="button" id="ai-enhance-btn" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg">
-                            AI로 다듬기
-                        </button>
-                    </div>
-                    <textarea id="tool-description" required rows="3" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg"></textarea>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 이름 *</label>
+                    <input type="text" id="tool-name" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-1">아이콘 (이모지)</label>
-                    <input type="text" id="tool-icon" placeholder="✨" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">등록자 *</label>
+                    <input type="text" id="tool-creator" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">툴 설명 *</label>
+                    <textarea id="tool-description" required rows="3" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-600 mb-1">바로가기 URL</label>
