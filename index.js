@@ -22,9 +22,6 @@ if (isFirebaseReady) {
     db = firebase.database();
 }
 
-// ---------------------------------------------------------
-// 초기 추천 데이터 세트
-// ---------------------------------------------------------
 const DEFAULT_TOOLS = [
     { name: "Dribbble", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계 디자이너들의 최신 트렌드와 포트폴리오를 확인할 수 있는 대표 플랫폼입니다.", url: "https://dribbble.com", source: "external", password: "admin" },
     { name: "Mobbin", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "최신 모바일 앱 UI 패턴과 스크린샷 레퍼런스를 가장 방대하게 보유한 곳입니다.", url: "https://mobbin.com", source: "external", password: "admin" },
@@ -38,7 +35,7 @@ const DEFAULT_TOOLS = [
     { name: "Google Fonts", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "가장 안정적이고 범용적인 웹폰트 라이브러리를 무료로 제공합니다.", url: "https://fonts.google.com", source: "external", password: "admin" },
     { name: "FontShare", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "ITF에서 제공하는 고퀄리티 무료 영문 폰트 서비스입니다.", url: "https://www.fontshare.com", source: "external", password: "admin" },
     { name: "Coolors", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "스페이스바만 누르면 감각적인 컬러 팔레트를 무한으로 생성해 줍니다.", url: "https://coolors.co", source: "external", password: "admin" },
-    { name: "Adobe Color", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "어도비 제품군과 연동되는 전문적인 색상 규칙 및 트렌드 확인이 가능합니다.", url: "https://color.adobe.com", source: "external", password: "admin" },
+    { name: "Adobe Color", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "어도비 제품군과 연동되는 전문적인 색상 규칙 및 트렌드 확인이 가능합니다.", url: "https://color.adobe.com", source: "color.adobe.com", password: "admin" },
     { name: "Happy Hues", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "실제 웹 사이트 UI에 적용된 컬러의 느낌을 미리 보며 배색을 공부할 수 있습니다.", url: "https://www.happyhues.co", source: "external", password: "admin" },
     { name: "Remove.bg", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "이미지의 배경(누끼)을 인공지능이 클릭 한 번에 깔끔하게 제거해 줍니다.", url: "https://www.remove.bg", source: "external", password: "admin" },
     { name: "Upscale.media", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "저해상도 이미지를 AI가 화질 저하 없이 고해상도로 확대해 줍니다.", url: "https://www.upscale.media", source: "external", password: "admin" },
@@ -72,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialLoader = document.getElementById('initial-loader');
     const statusDot = document.getElementById('status-dot');
     const statusText = document.getElementById('status-text');
+
+    // 탭 스크롤 관련
+    const tabsContainer = document.getElementById('category-tabs');
+    const scrollLeftBtn = document.getElementById('tabs-scroll-left');
+    const scrollRightBtn = document.getElementById('tabs-scroll-right');
 
     // 온보딩 관련 요소
     const tourOverlay = document.getElementById('onboarding-overlay');
@@ -107,26 +109,61 @@ document.addEventListener('DOMContentLoaded', () => {
         "기타 (Etc)"
     ];
 
+    // --- 사이드바 제어 함수 ---
+    function showSidebar() {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+            setTimeout(() => sidebarOverlay.classList.remove('opacity-0'), 10);
+        } else {
+            sidebar.classList.remove('md:hidden');
+            sidebar.classList.add('md:flex');
+        }
+    }
+
+    function hideSidebar() {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('opacity-0');
+            setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+        } else {
+            sidebar.classList.add('md:hidden');
+            sidebar.classList.remove('md:flex');
+        }
+    }
+
+    // --- 탭 스크롤 제어 ---
+    if (scrollLeftBtn && scrollRightBtn && tabsContainer) {
+        scrollLeftBtn.onclick = () => {
+            tabsContainer.scrollLeft -= 200;
+        };
+        scrollRightBtn.onclick = () => {
+            tabsContainer.scrollLeft += 200;
+        };
+    }
+
     // ---------------------------------------------------------
-    // 🚦 온보딩 가이드 투어 로직
+    // 🚦 온보딩 가이드 투어 로직 (PC 버전 전용)
     // ---------------------------------------------------------
     const tourSteps = [
         {
             targetId: 'sidebar-nav',
             title: '주요 메뉴 가이드',
-            desc: '이곳에서 홈 화면과 내가 찜한 즐겨찾기 도구들을 관리할 수 있습니다.',
+            desc: '이곳에서 홈 화면과 즐겨찾기를 전환할 수 있습니다.',
             pos: 'right'
         },
         {
             targetId: 'search-container',
             title: '실시간 검색창',
-            desc: '언제든 키워드를 입력해 원하는 툴을 찾으세요. 단축키 "/"로 빠르게 포커스할 수 있습니다.',
+            desc: '언제든 키워드를 입력해 원하는 툴을 찾으세요.',
             pos: 'bottom'
         },
         {
             targetId: 'category-tabs',
             title: '카테고리 퀵 필터',
-            desc: '영감, 에셋, AI 등 업무 성격에 맞춰 잘 정리된 카테고리를 골라보세요.',
+            desc: '영감, 에셋, AI 등 업무 성격에 맞춰 잘 정리된 카테고리를 골라보세요. 화살표로 더 많은 카테고리를 볼 수 있습니다.',
             pos: 'bottom'
         },
         {
@@ -134,18 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '실시간 툴 공유하기',
             desc: '팀원들과 나누고 싶은 유용한 사이트가 있다면 여기서 직접 등록해 보세요.',
             pos: 'bottom'
-        },
-        {
-            targetId: 'cloud-status',
-            title: '데이터 연결 상태',
-            desc: '클라우드 실시간 동기화 상태를 나타냅니다. 항상 최신 정보가 유지됩니다.',
-            pos: 'bottom'
         }
     ];
 
     let currentStep = 0;
 
     function startTour() {
+        // 모바일 사이즈일 경우 투어 실행 안 함
+        if (window.innerWidth < 768) return;
+        
         if (localStorage.getItem(HIDE_TOUR_KEY)) return;
         
         tourOverlay.classList.remove('hidden');
@@ -159,9 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = document.getElementById(step.targetId);
         if (!target) return;
 
-        // 스포트라이트 위치 계산
         const rect = target.getBoundingClientRect();
         const padding = 8;
+        
+        // 스포트라이트 설정
         tourSpotlight.style.top = `${rect.top - padding}px`;
         tourSpotlight.style.left = `${rect.left - padding}px`;
         tourSpotlight.style.width = `${rect.width + padding * 2}px`;
@@ -170,36 +205,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // 툴팁 내용 업데이트
         tourTitle.innerText = step.title;
         tourDesc.innerText = step.desc;
-        tourStepCount.innerText = `STEP ${index + 1}/${tourSteps.length}`;
-        tourNextText.innerText = index === tourSteps.length - 1 ? '시작하기' : '다음 단계로';
+        tourStepCount.innerText = `STEP ${currentStep + 1}/${tourSteps.length}`;
+        tourNextText.innerText = currentStep === tourSteps.length - 1 ? '시작하기' : '다음 단계로';
         
-        if (index === tourSteps.length - 1) {
-            tourNeverLabel.classList.remove('hidden');
-            tourNeverLabel.classList.add('flex');
-        } else {
-            tourNeverLabel.classList.add('hidden');
-            tourNeverLabel.classList.remove('flex');
-        }
+        tourNeverLabel.classList.toggle('hidden', currentStep !== tourSteps.length - 1);
+        tourNeverLabel.classList.toggle('flex', currentStep === tourSteps.length - 1);
 
-        // 툴팁 위치 계산
         tourTooltip.classList.remove('hidden');
+        
         setTimeout(() => {
             const tooltipRect = tourTooltip.getBoundingClientRect();
             let top, left;
 
+            // PC 버전 투어이므로 PC 전용 배치 로직만 유지
             if (step.pos === 'right') {
                 top = rect.top;
                 left = rect.right + 24;
                 tooltipArrow.style.top = '24px';
                 tooltipArrow.style.left = '-8px';
+                tooltipArrow.style.transform = 'rotate(45deg)';
             } else {
                 top = rect.bottom + 24;
                 left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
                 tooltipArrow.style.top = '-8px';
                 tooltipArrow.style.left = `${tooltipRect.width / 2 - 8}px`;
+                tooltipArrow.style.transform = 'rotate(45deg)';
             }
 
-            // 화면 밖으로 나가지 않게 보정
+            // 최종 보정
             if (left < 16) left = 16;
             if (left + tooltipRect.width > window.innerWidth - 16) left = window.innerWidth - tooltipRect.width - 16;
 
@@ -249,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse";
             renderTools();
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
+            // 클라우드 연결 직후 투어 시작 체크
             setTimeout(startTour, 500);
         }, (error) => {
             statusText.innerText = "연결 오류";
@@ -261,14 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🎨 UI 렌더링 및 기능
     // ---------------------------------------------------------
     function renderCategoryTabs() {
-        const tabsContainer = document.getElementById('category-tabs');
         if (!tabsContainer) return;
         tabsContainer.innerHTML = '';
         const allTabs = ["전체", ...CATEGORIES];
         allTabs.forEach(cat => {
             const btn = document.createElement('button');
             btn.innerHTML = cat.replace(/\s\((.*?)\)/, ' <span class="text-xs font-normal opacity-70">($1)</span>');
-            btn.className = "px-4 py-2 text-sm font-bold rounded-full transition-all duration-200 border whitespace-nowrap";
+            btn.className = "px-4 py-2 text-sm font-bold rounded-full transition-all duration-200 border whitespace-nowrap flex-shrink-0";
             if (cat === currentCategory) {
                 btn.classList.add("bg-brand-500", "text-white", "border-brand-500", "shadow-md");
             } else {
@@ -363,149 +396,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="text-6xl mb-6 grayscale opacity-50">📁</div>
                     <h3 class="text-xl font-bold text-slate-800 mb-2">${isEmptySearch ? '찾으시는 툴이 없습니다.' : '등록된 디자인 툴이 없습니다.'}</h3>
                     <p class="text-slate-500 mb-8 max-w-sm mx-auto">
-                        ${isEmptySearch ? '검색어 또는 필터를 변경해 보세요.' : '팀원들에게 유용한 사이트를 직접 공유하거나, <br>아래 버튼을 눌러 디자인팀 추천 리스트를 채워보세요.'}
+                        ${isEmptySearch ? '검색어 또는 필터를 변경해 보세요.' : '팀원들에게 유용한 사이트를 직접 공유해 보세요.'}
                     </p>
-                    ${!isEmptySearch ? `
-                        <button id="seed-data-btn" class="px-8 py-4 bg-brand-500 text-white font-bold rounded-2xl shadow-lg hover:bg-brand-600 hover:-translate-y-1 transition-all flex items-center gap-2">
-                            <span>✨ 디자인팀 추천 툴 세트 불러오기 (25선)</span>
-                        </button>
-                    ` : ''}
                 </div>
             `;
-            const seedBtn = document.getElementById('seed-data-btn');
-            if (seedBtn) seedBtn.onclick = seedInitialData;
         } else {
             filteredTools.forEach(tool => toolGrid.appendChild(createToolCard(tool)));
         }
     }
 
-    async function seedInitialData() {
-        if (!confirm("25개의 엄선된 추천 디자인 툴을 클라우드에 등록할까요?")) return;
-        try {
-            initialLoader.classList.remove('opacity-0', 'pointer-events-none');
-            const now = Date.now();
-            if (isFirebaseReady) {
-                for (let i = DEFAULT_TOOLS.length - 1; i >= 0; i--) {
-                    const tool = DEFAULT_TOOLS[i];
-                    await db.ref('tools').push({ ...tool, updatedAt: now - (i * 1000) });
-                }
-            } else {
-                cloudTools = DEFAULT_TOOLS.map((t, i) => ({ ...t, updatedAt: now - (i * 1000), firebaseId: 'local-' + now + i }));
-                localStorage.setItem('demo-tools', JSON.stringify(cloudTools));
-                renderTools();
-            }
-            alert("총 25개의 추천 툴이 등록되었습니다! 🚀");
-        } catch (err) {
-            alert("오류 발생: " + err.message);
-        } finally {
-            initialLoader.classList.add('opacity-0', 'pointer-events-none');
-        }
-    }
-
-    function openModal(mode = 'create', toolData = null) {
-        addToolForm.reset();
-        modal.classList.remove('hidden');
-        if (mode === 'edit' && toolData) {
-            modalTitle.innerText = "툴 정보 수정";
-            submitBtn.innerText = "수정하기";
-            document.getElementById('tool-id').value = toolData.firebaseId;
-            document.getElementById('tool-name').value = toolData.name;
-            document.getElementById('tool-creator').value = toolData.creator;
-            document.getElementById('tool-category').value = toolData.category;
-            document.getElementById('tool-description').value = toolData.description;
-            document.getElementById('tool-url').value = toolData.url;
-            document.getElementsByName('tool-source').forEach(r => { if(r.value === toolData.source) r.checked = true; });
+    sidebarToggle.onclick = () => {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            if (sidebar.classList.contains('-translate-x-full')) showSidebar();
+            else hideSidebar();
         } else {
-            modalTitle.innerText = "새로운 툴 공유하기";
-            submitBtn.innerText = "팀과 공유하기";
-            document.getElementById('tool-id').value = "";
-        }
-    }
-
-    addToolBtn.onclick = () => openModal('create');
-    closeModalBtn.onclick = cancelBtn.onclick = () => modal.classList.add('hidden');
-
-    addToolForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const fid = document.getElementById('tool-id').value;
-        const selectedSource = Array.from(document.getElementsByName('tool-source')).find(r => r.checked)?.value || 'external';
-        const toolData = {
-            id: fid ? cloudTools.find(t => t.firebaseId === fid).id : 'tool-' + Date.now(),
-            name: document.getElementById('tool-name').value,
-            creator: document.getElementById('tool-creator').value,
-            category: document.getElementById('tool-category').value,
-            description: document.getElementById('tool-description').value,
-            url: document.getElementById('tool-url').value,
-            source: selectedSource,
-            password: document.getElementById('tool-password').value,
-            updatedAt: Date.now()
-        };
-
-        if (isFirebaseReady) {
-            try {
-                if (fid) await db.ref('tools/' + fid).update(toolData);
-                else await db.ref('tools').push(toolData);
-                modal.classList.add('hidden');
-            } catch (err) { alert("저장 실패: " + err.message); }
-        } else {
-            if (fid) {
-                const idx = cloudTools.findIndex(t => t.firebaseId === fid);
-                cloudTools[idx] = { ...toolData, firebaseId: fid };
-            } else {
-                cloudTools.push({ ...toolData, firebaseId: 'local-' + Date.now() });
-            }
-            localStorage.setItem('demo-tools', JSON.stringify(cloudTools));
-            modal.classList.add('hidden');
-            renderTools();
+            if (sidebar.classList.contains('md:flex')) hideSidebar();
+            else showSidebar();
         }
     };
 
-    toolGrid.onclick = async (e) => {
-        const deleteBtn = e.target.closest('.tool-delete-btn');
-        const editBtn = e.target.closest('.tool-edit-btn');
-        const favBtn = e.target.closest('.tool-favorite-btn');
-        const copyBtn = e.target.closest('.tool-copy-btn');
-
-        if (copyBtn) {
-            const url = copyBtn.dataset.url;
-            if (url && url !== '#') {
-                navigator.clipboard.writeText(url).then(() => {
-                    const originalInner = copyBtn.innerHTML;
-                    copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#f97316"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
-                    setTimeout(() => copyBtn.innerHTML = originalInner, 1500);
-                });
-            }
-        }
-
-        if (deleteBtn || editBtn) {
-            const fid = (deleteBtn || editBtn).dataset.fid;
-            const target = cloudTools.find(t => t.firebaseId === fid);
-            const pwd = prompt("비밀번호를 입력하세요.");
-            if (pwd === null) return;
-            if (pwd !== target.password && pwd !== ADMIN_PASSWORD) return alert("비밀번호가 틀렸습니다.");
-            if (deleteBtn && confirm("삭제할까요?")) {
-                if (isFirebaseReady) await db.ref('tools/' + fid).remove();
-                else { cloudTools = cloudTools.filter(t => t.firebaseId !== fid); localStorage.setItem('demo-tools', JSON.stringify(cloudTools)); renderTools(); }
-            } else if (editBtn) openModal('edit', target);
-        }
-
-        if (favBtn) {
-            const id = favBtn.dataset.id;
-            if (favorites.includes(id)) favorites = favorites.filter(fid => fid !== id);
-            else favorites.push(id);
-            localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-            renderTools();
-        }
-    };
-
+    sidebarOverlay.onclick = hideSidebar;
     searchInput.addEventListener('input', renderTools);
-    document.onkeydown = (e) => { if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); } };
     
     navHomeBtn.onclick = () => {
         currentView = 'all'; currentCategory = '전체';
         navHomeBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600";
         navFavoritesBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800";
         renderCategoryTabs(); renderTools();
+        if (window.innerWidth < 768) hideSidebar();
     };
 
     navFavoritesBtn.onclick = () => {
@@ -513,10 +432,8 @@ document.addEventListener('DOMContentLoaded', () => {
         navHomeBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800";
         navFavoritesBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600";
         renderTools();
+        if (window.innerWidth < 768) hideSidebar();
     };
-
-    sidebarToggle.onclick = () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); setTimeout(() => sidebarOverlay.classList.toggle('opacity-0'), 10); };
-    sidebarOverlay.onclick = () => { sidebar.classList.add('-translate-x-full'); sidebarOverlay.classList.add('hidden', 'opacity-0'); };
 
     renderCategoryTabs();
     initSync();
