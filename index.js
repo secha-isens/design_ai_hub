@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showModal(tool = null) {
         if (tool) {
             modalTitle.innerText = "디자인 툴 수정하기";
-            submitBtn.innerText = "수정 완료 (admin)";
+            submitBtn.innerText = "수정 완료";
             document.getElementById('tool-id').value = tool.firebaseId || tool.id || '';
             document.getElementById('tool-category').value = tool.category;
             document.getElementById('tool-name').value = tool.name;
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tool-url').value = tool.url;
         } else {
             modalTitle.innerText = "새로운 툴 등록하기";
-            submitBtn.innerText = "팀과 공유하기 (admin)";
+            submitBtn.innerText = "팀과 공유하기";
             addToolForm.reset();
             document.getElementById('tool-id').value = '';
         }
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         card.querySelector('.tool-edit-btn').onclick = () => showModal(tool);
         card.querySelector('.tool-delete-btn').onclick = async () => {
-            const pass = prompt("이 도구를 삭제하려면 관리자 비밀번호를 입력하세요. (admin)");
+            const pass = prompt("이 도구를 삭제하려면 관리자 비밀번호를 입력하세요.");
             if (pass !== ADMIN_PASSWORD) return alert("비밀번호 불일치");
             if (!confirm("정말 삭제할까요?")) return;
 
