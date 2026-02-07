@@ -23,31 +23,31 @@ if (isFirebaseReady) {
 }
 
 const DEFAULT_TOOLS = [
-    { name: "Dribbble", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계 디자이너들의 최신 트렌드와 포트폴리오를 확인할 수 있는 대표 플랫폼입니다.", url: "https://dribbble.com", source: "external", password: "admin" },
-    { name: "Mobbin", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "최신 모바일 앱 UI 패턴과 스크린샷 레퍼런스를 가장 방대하게 보유한 곳입니다.", url: "https://mobbin.com", source: "external", password: "admin" },
-    { name: "Behance", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "어도비에서 운영하는 고퀄리티 프로젝트 중심의 포트폴리오 사이트입니다.", url: "https://www.behance.net", source: "external", password: "admin" },
-    { name: "Awwwards", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계의 창의적이고 실험적인 웹 디자인 수상작들을 모아 놓은 곳입니다.", url: "https://www.awwwards.com", source: "external", password: "admin" },
-    { name: "Unsplash", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "저작권 걱정 없는 초고화질 감성 사진들을 무료로 다운로드할 수 있습니다.", url: "https://unsplash.com", source: "external", password: "admin" },
-    { name: "LottieFiles", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "웹과 앱에 가볍게 적용 가능한 JSON 기반 애니메이션(Lottie) 오픈 소스입니다.", url: "https://lottiefiles.com", source: "external", password: "admin" },
-    { name: "Freepik", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "벡터 이미지, PSD, 사진 등 방대한 양의 디자인 소스를 제공합니다.", url: "https://www.freepik.com", source: "external", password: "admin" },
-    { name: "Flaticon", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "UI 디자인에 필요한 수백만 개의 아이콘을 벡터 포맷으로 제공합니다.", url: "https://www.flaticon.com", source: "external", password: "admin" },
-    { name: "눈누 (Noonnu)", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "상업적으로 이용 가능한 국내 모든 무료 한글 폰트를 모아놓은 필수 사이트입니다.", url: "https://noonnu.cc", source: "external", password: "admin" },
-    { name: "Google Fonts", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "가장 안정적이고 범용적인 웹폰트 라이브러리를 무료로 제공합니다.", url: "https://fonts.google.com", source: "external", password: "admin" },
-    { name: "FontShare", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "ITF에서 제공하는 고퀄리티 무료 영문 폰트 서비스입니다.", url: "https://www.fontshare.com", source: "external", password: "admin" },
-    { name: "Coolors", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "스페이스바만 누르면 감각적인 컬러 팔레트를 무한으로 생성해 줍니다.", url: "https://coolors.co", source: "external", password: "admin" },
-    { name: "Adobe Color", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "어도비 제품군과 연동되는 전문적인 색상 규칙 및 트렌드 확인이 가능합니다.", url: "https://color.adobe.com", source: "color.adobe.com", password: "admin" },
-    { name: "Happy Hues", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "실제 웹 사이트 UI에 적용된 컬러의 느낌을 미리 보며 배색을 공부할 수 있습니다.", url: "https://www.happyhues.co", source: "external", password: "admin" },
-    { name: "Remove.bg", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "이미지의 배경(누끼)을 인공지능이 클릭 한 번에 깔끔하게 제거해 줍니다.", url: "https://www.remove.bg", source: "external", password: "admin" },
-    { name: "Upscale.media", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "저해상도 이미지를 AI가 화질 저하 없이 고해상도로 확대해 줍니다.", url: "https://www.upscale.media", source: "external", password: "admin" },
-    { name: "ChatGPT (OpenAI)", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "디자인 기획, 카피라이팅, 사용자 인터뷰 대본 작성 등에 활용하는 최고의 AI 비서입니다.", url: "https://chatgpt.com", source: "external", password: "admin" },
-    { name: "Midjourney", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "텍스트 입력만으로 압도적인 퀄리티의 이미지를 생성하는 현존 최강 AI 툴입니다.", url: "https://www.midjourney.com", source: "external", password: "admin" },
-    { name: "성원애드피아", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "국내 가장 대중적인 인쇄 발주 사이트로, 가성비 좋은 출력물을 주문할 수 있습니다.", url: "https://www.swadpia.co.kr", source: "external", password: "admin" },
-    { name: "레드프린팅", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "소량 굿즈 제작 및 실험적인 후가공 인쇄에 강점이 있는 사이트입니다.", url: "https://www.redprinting.co.kr", source: "external", password: "admin" },
-    { name: "오프린트미", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "직관적인 편집 툴과 세련된 패키징으로 인기 있는 인쇄 서비스입니다.", url: "https://www.ohprint.me", source: "external", password: "admin" },
-    { name: "Surfe (서피)", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "디자이너들에게 영감을 주는 국내외 최신 아티클과 트렌드를 큐레이션해 줍니다.", url: "https://surfe.io", source: "external", password: "admin" },
-    { name: "커리어리", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "현직 디자이너 및 개발자들의 전문적인 의견과 인사이트를 볼 수 있는 SNS입니다.", url: "https://careerly.co.kr", source: "external", password: "admin" },
-    { name: "Medium (Design)", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "글로벌 디자인 기업(Google, Airbnb 등)의 디자인 시스템과 철학을 읽을 수 있습니다.", url: "https://medium.com/design", source: "external", password: "admin" },
-    { name: "Figma Community", creator: "System", category: "기타 (Etc)", description: "전 세계 디자이너들이 공유한 피그마 플러그인과 디자인 시스템 파일의 보고입니다.", url: "https://www.figma.com/community", source: "external", password: "admin" }
+    { id: 'def-1', name: "Dribbble", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계 디자이너들의 최신 트렌드와 포트폴리오를 확인할 수 있는 대표 플랫폼입니다.", url: "https://dribbble.com", source: "external", password: "admin" },
+    { id: 'def-2', name: "Mobbin", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "최신 모바일 앱 UI 패턴과 스크린샷 레퍼런스를 가장 방대하게 보유한 곳입니다.", url: "https://mobbin.com", source: "external", password: "admin" },
+    { id: 'def-3', name: "Behance", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "어도비에서 운영하는 고퀄리티 프로젝트 중심의 포트폴리오 사이트입니다.", url: "https://www.behance.net", source: "external", password: "admin" },
+    { id: 'def-4', name: "Awwwards", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계의 창의적이고 실험적인 웹 디자인 수상작들을 모아 놓은 곳입니다.", url: "https://www.awwwards.com", source: "external", password: "admin" },
+    { id: 'def-5', name: "Unsplash", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "저작권 걱정 없는 초고화질 감성 사진들을 무료로 다운로드할 수 있습니다.", url: "https://unsplash.com", source: "external", password: "admin" },
+    { id: 'def-6', name: "LottieFiles", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "웹과 앱에 가볍게 적용 가능한 JSON 기반 애니메이션(Lottie) 오픈 소스입니다.", url: "https://lottiefiles.com", source: "external", password: "admin" },
+    { id: 'def-7', name: "Freepik", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "벡터 이미지, PSD, 사진 등 방대한 양의 디자인 소스를 제공합니다.", url: "https://www.freepik.com", source: "external", password: "admin" },
+    { id: 'def-8', name: "Flaticon", creator: "System", category: "무료 소스 & 에셋 (Assets)", description: "UI 디자인에 필요한 수백만 개의 아이콘을 벡터 포맷으로 제공합니다.", url: "https://www.flaticon.com", source: "external", password: "admin" },
+    { id: 'def-9', name: "눈누 (Noonnu)", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "상업적으로 이용 가능한 국내 모든 무료 한글 폰트를 모아놓은 필수 사이트입니다.", url: "https://noonnu.cc", source: "external", password: "admin" },
+    { id: 'def-10', name: "Google Fonts", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "가장 안정적이고 범용적인 웹폰트 라이브러리를 무료로 제공합니다.", url: "https://fonts.google.com", source: "external", password: "admin" },
+    { id: 'def-11', name: "FontShare", creator: "System", category: "폰트 & 타이포그래피 (Typography)", description: "ITF에서 제공하는 고퀄리티 무료 영문 폰트 서비스입니다.", url: "https://www.fontshare.com", source: "external", password: "admin" },
+    { id: 'def-12', name: "Coolors", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "스페이스바만 누르면 감각적인 컬러 팔레트를 무한으로 생성해 줍니다.", url: "https://coolors.co", source: "external", password: "admin" },
+    { id: 'def-13', name: "Adobe Color", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "어도비 제품군과 연동되는 전문적인 색상 규칙 및 트렌드 확인이 가능합니다.", url: "https://color.adobe.com", source: "external", password: "admin" },
+    { id: 'def-14', name: "Happy Hues", creator: "System", category: "컬러 & 배색 (Color Tools)", description: "실제 웹 사이트 UI에 적용된 컬러의 느낌을 미리 보며 배색을 공부할 수 있습니다.", url: "https://www.happyhues.co", source: "external", password: "admin" },
+    { id: 'def-15', name: "Remove.bg", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "이미지의 배경(누끼)을 인공지능이 클릭 한 번에 깔끔하게 제거해 줍니다.", url: "https://www.remove.bg", source: "external", password: "admin" },
+    { id: 'def-16', name: "Upscale.media", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "저해상도 이미지를 AI가 화질 저하 없이 고해상도로 확대해 줍니다.", url: "https://www.upscale.media", source: "external", password: "admin" },
+    { id: 'def-17', name: "ChatGPT (OpenAI)", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "디자인 기획, 카피라이팅, 사용자 인터뷰 대본 작성 등에 활용하는 최고의 AI 비서입니다.", url: "https://chatgpt.com", source: "external", password: "admin" },
+    { id: 'def-18', name: "Midjourney", creator: "System", category: "AI & 편의 도구 (AI & Utilities)", description: "텍스트 입력만으로 압도적인 퀄리티의 이미지를 생성하는 현존 최강 AI 툴입니다.", url: "https://www.midjourney.com", source: "external", password: "admin" },
+    { id: 'def-19', name: "성원애드피아", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "국내 가장 대중적인 인쇄 발주 사이트로, 가성비 좋은 출력물을 주문할 수 있습니다.", url: "https://www.swadpia.co.kr", source: "external", password: "admin" },
+    { id: 'def-20', name: "레드프린팅", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "소량 굿즈 제작 및 실험적인 후가공 인쇄에 강점이 있는 사이트입니다.", url: "https://www.redprinting.co.kr", source: "external", password: "admin" },
+    { id: 'def-21', name: "오프린트미", creator: "System", category: "인쇄 & 발주 (Print & Production)", description: "직관적인 편집 툴과 세련된 패키징으로 인기 있는 인쇄 서비스입니다.", url: "https://www.ohprint.me", source: "external", password: "admin" },
+    { id: 'def-22', name: "Surfe (서피)", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "디자이너들에게 영감을 주는 국내외 최신 아티클과 트렌드를 큐레이션해 줍니다.", url: "https://surfe.io", source: "external", password: "admin" },
+    { id: 'def-23', name: "커리어리", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "현직 디자이너 및 개발자들의 전문적인 의견과 인사이트를 볼 수 있는 SNS입니다.", url: "https://careerly.co.kr", source: "external", password: "admin" },
+    { id: 'def-24', name: "Medium (Design)", creator: "System", category: "트렌드 & 아티클 (News & Career)", description: "글로벌 디자인 기업(Google, Airbnb 등)의 디자인 시스템과 철학을 읽을 수 있습니다.", url: "https://medium.com/design", source: "external", password: "admin" },
+    { id: 'def-25', name: "Figma Community", creator: "System", category: "기타 (Etc)", description: "전 세계 디자이너들이 공유한 피그마 플러그인과 디자인 시스템 파일의 보고입니다.", url: "https://www.figma.com/community", source: "external", password: "admin" }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -74,6 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabsContainer = document.getElementById('category-tabs');
     const scrollLeftBtn = document.getElementById('tabs-scroll-left');
     const scrollRightBtn = document.getElementById('tabs-scroll-right');
+    const fadeLeft = document.getElementById('tabs-fade-left');
+    const fadeRight = document.getElementById('tabs-fade-right');
 
     // 온보딩 관련 요소
     const tourOverlay = document.getElementById('onboarding-overlay');
@@ -134,14 +136,116 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 탭 스크롤 제어 ---
-    if (scrollLeftBtn && scrollRightBtn && tabsContainer) {
-        scrollLeftBtn.onclick = () => {
-            tabsContainer.scrollLeft -= 200;
+    // --- 모달 제어 함수 ---
+    function showModal(tool = null) {
+        if (tool) {
+            modalTitle.innerText = "디자인 툴 수정하기";
+            submitBtn.innerText = "수정 완료";
+            document.getElementById('tool-id').value = tool.firebaseId || '';
+            document.getElementById('tool-category').value = tool.category;
+            document.getElementById('tool-name').value = tool.name;
+            document.getElementById('tool-creator').value = tool.creator;
+            document.getElementById('tool-description').value = tool.description;
+            document.getElementById('tool-url').value = tool.url;
+        } else {
+            modalTitle.innerText = "새로운 툴 등록하기";
+            submitBtn.innerText = "팀과 공유하기";
+            addToolForm.reset();
+            document.getElementById('tool-id').value = '';
+        }
+        modal.classList.remove('hidden');
+    }
+
+    function hideModal() {
+        modal.classList.add('hidden');
+    }
+
+    addToolBtn.onclick = () => showModal();
+    closeModalBtn.onclick = hideModal;
+    cancelBtn.onclick = hideModal;
+    modal.onclick = (e) => { if (e.target === modal) hideModal(); };
+
+    // 툴 등록/수정 처리
+    addToolForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const fid = document.getElementById('tool-id').value;
+        const password = document.getElementById('tool-password').value;
+
+        if (password !== ADMIN_PASSWORD) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        const toolData = {
+            id: fid || Date.now().toString(),
+            category: document.getElementById('tool-category').value,
+            name: document.getElementById('tool-name').value,
+            creator: document.getElementById('tool-creator').value,
+            description: document.getElementById('tool-description').value,
+            url: document.getElementById('tool-url').value,
+            source: 'internal',
+            updatedAt: Date.now()
         };
-        scrollRightBtn.onclick = () => {
-            tabsContainer.scrollLeft += 200;
-        };
+
+        if (isFirebaseReady) {
+            try {
+                if (fid) {
+                    await db.ref('tools/' + fid).update(toolData);
+                } else {
+                    await db.ref('tools').push(toolData);
+                }
+                alert("성공적으로 공유되었습니다!");
+                hideModal();
+            } catch (err) {
+                alert("데이터 저장 중 오류가 발생했습니다.");
+            }
+        } else {
+            // 로컬 모드 대응
+            let localTools = JSON.parse(localStorage.getItem('demo-tools')) || [...DEFAULT_TOOLS];
+            if (fid) {
+                localTools = localTools.map(t => t.id === fid ? {...t, ...toolData} : t);
+            } else {
+                localTools.push(toolData);
+            }
+            localStorage.setItem('demo-tools', JSON.stringify(localTools));
+            cloudTools = localTools;
+            renderTools();
+            hideModal();
+        }
+    };
+
+    // --- 탭 스크롤 제어 고도화 ---
+    function updateTabsScrollUI() {
+        if (!tabsContainer) return;
+        const { scrollLeft, scrollWidth, clientWidth } = tabsContainer;
+        
+        const isAtLeft = scrollLeft <= 5;
+        const isAtRight = scrollLeft + clientWidth >= scrollWidth - 5;
+        const isScrollable = scrollWidth > clientWidth;
+
+        if (scrollLeftBtn) scrollLeftBtn.style.display = (isScrollable && !isAtLeft) ? 'flex' : 'none';
+        if (scrollRightBtn) scrollRightBtn.style.display = (isScrollable && !isAtRight) ? 'flex' : 'none';
+        
+        if (fadeLeft) fadeLeft.style.opacity = (isScrollable && !isAtLeft) ? '1' : '0';
+        if (fadeRight) fadeRight.style.opacity = (isScrollable && !isAtRight) ? '1' : '0';
+    }
+
+    if (tabsContainer) {
+        tabsContainer.addEventListener('scroll', updateTabsScrollUI);
+        window.addEventListener('resize', updateTabsScrollUI);
+        
+        if (scrollLeftBtn) {
+            scrollLeftBtn.onclick = (e) => {
+                e.stopPropagation();
+                tabsContainer.scrollBy({ left: -250, behavior: 'smooth' });
+            };
+        }
+        if (scrollRightBtn) {
+            scrollRightBtn.onclick = (e) => {
+                e.stopPropagation();
+                tabsContainer.scrollBy({ left: 250, behavior: 'smooth' });
+            };
+        }
     }
 
     // ---------------------------------------------------------
@@ -177,11 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 0;
 
     function startTour() {
-        // 모바일 사이즈일 경우 투어 실행 안 함
         if (window.innerWidth < 768) return;
-        
         if (localStorage.getItem(HIDE_TOUR_KEY)) return;
-        
         tourOverlay.classList.remove('hidden');
         setTimeout(() => tourOverlay.classList.add('active'), 10);
         showStep(0);
@@ -196,13 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = target.getBoundingClientRect();
         const padding = 8;
         
-        // 스포트라이트 설정
         tourSpotlight.style.top = `${rect.top - padding}px`;
         tourSpotlight.style.left = `${rect.left - padding}px`;
         tourSpotlight.style.width = `${rect.width + padding * 2}px`;
         tourSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-        // 툴팁 내용 업데이트
         tourTitle.innerText = step.title;
         tourDesc.innerText = step.desc;
         tourStepCount.innerText = `STEP ${currentStep + 1}/${tourSteps.length}`;
@@ -217,7 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const tooltipRect = tourTooltip.getBoundingClientRect();
             let top, left;
 
-            // PC 버전 투어이므로 PC 전용 배치 로직만 유지
             if (step.pos === 'right') {
                 top = rect.top;
                 left = rect.right + 24;
@@ -232,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tooltipArrow.style.transform = 'rotate(45deg)';
             }
 
-            // 최종 보정
             if (left < 16) left = 16;
             if (left + tooltipRect.width > window.innerWidth - 16) left = window.innerWidth - tooltipRect.width - 16;
 
@@ -243,19 +340,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     tourNextBtn.onclick = () => {
-        if (currentStep < tourSteps.length - 1) {
-            showStep(currentStep + 1);
-        } else {
-            endTour();
-        }
+        if (currentStep < tourSteps.length - 1) showStep(currentStep + 1);
+        else endTour();
     };
 
     tourSkipBtn.onclick = () => endTour();
 
     function endTour() {
-        if (tourNeverCheck.checked) {
-            localStorage.setItem(HIDE_TOUR_KEY, 'true');
-        }
+        if (tourNeverCheck.checked) localStorage.setItem(HIDE_TOUR_KEY, 'true');
         tourTooltip.classList.remove('active');
         tourOverlay.classList.remove('active');
         setTimeout(() => tourOverlay.classList.add('hidden'), 300);
@@ -269,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusText.innerText = "로컬 모드";
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
-            cloudTools = JSON.parse(localStorage.getItem('demo-tools')) || [];
+            cloudTools = JSON.parse(localStorage.getItem('demo-tools')) || [...DEFAULT_TOOLS];
             renderTools();
             startTour();
             return;
@@ -277,17 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         db.ref('tools').on('value', (snapshot) => {
             const data = snapshot.val();
-            cloudTools = data ? Object.keys(data).map(key => ({ ...data[key], firebaseId: key })) : [];
+            let firebaseTools = data ? Object.keys(data).map(key => ({ ...data[key], firebaseId: key })) : [];
+            // 기본 툴과 합치기
+            cloudTools = [...DEFAULT_TOOLS, ...firebaseTools];
             statusText.innerText = "실시간 클라우드 연결됨";
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse";
             renderTools();
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
-            // 클라우드 연결 직후 투어 시작 체크
             setTimeout(startTour, 500);
-        }, (error) => {
-            statusText.innerText = "연결 오류";
-            statusDot.className = "w-1.5 h-1.5 rounded-full bg-red-500";
-            initialLoader.classList.add('opacity-0', 'pointer-events-none');
         });
     }
 
@@ -315,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             tabsContainer.appendChild(btn);
         });
+        setTimeout(updateTabsScrollUI, 100);
     }
 
     function createToolCard(tool) {
@@ -342,12 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" class="tool-copy-btn p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-brand-500 transition-colors" title="URL 복사" data-url="${url}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
                     </button>
-                    <button type="button" class="tool-edit-btn p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-blue-500 transition-colors" title="수정" data-fid="${firebaseId}">
+                    ${source === 'internal' ? `
+                    <button type="button" class="tool-edit-btn p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-blue-500 transition-colors" title="수정" data-fid="${firebaseId || ''}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </button>
-                    <button type="button" class="tool-delete-btn p-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="삭제" data-fid="${firebaseId}">
+                    <button type="button" class="tool-delete-btn p-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="삭제" data-fid="${firebaseId || ''}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
+                    </button>` : ''}
                 </div>
                 <button type="button" class="tool-favorite-btn p-2 rounded-full bg-white border border-slate-200 shadow-sm hover:text-brand-500 text-slate-300 transition-colors" data-id="${id}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 heart-icon ${isFav ? 'active' : ''}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="${isFav ? 'currentColor' : 'none'}">
@@ -372,13 +463,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>
             </div>
         `;
+
+        // 복사/즐겨찾기 이벤트 위임 대신 개별 바인딩 (간결함 위해)
+        card.querySelector('.tool-copy-btn').onclick = () => {
+            navigator.clipboard.writeText(url).then(() => alert("URL이 복사되었습니다!"));
+        };
+        card.querySelector('.tool-favorite-btn').onclick = () => {
+            if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
+            else favorites.push(id);
+            localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+            renderTools();
+        };
+
+        const editBtn = card.querySelector('.tool-edit-btn');
+        if (editBtn) {
+            editBtn.onclick = () => showModal(tool);
+        }
+
+        const deleteBtn = card.querySelector('.tool-delete-btn');
+        if (deleteBtn) {
+            deleteBtn.onclick = async () => {
+                const pass = prompt("삭제하려면 관리자 비밀번호를 입력하세요.");
+                if (pass !== ADMIN_PASSWORD) return alert("비밀번호 불일치");
+                if (!confirm("정말 삭제할까요?")) return;
+
+                if (isFirebaseReady && firebaseId) {
+                    await db.ref('tools/' + firebaseId).remove();
+                } else {
+                    let localTools = JSON.parse(localStorage.getItem('demo-tools')) || [...DEFAULT_TOOLS];
+                    localTools = localTools.filter(t => t.id !== id);
+                    localStorage.setItem('demo-tools', JSON.stringify(localTools));
+                    cloudTools = localTools;
+                    renderTools();
+                }
+            };
+        }
+
         return card;
     }
 
     function renderTools() {
         toolGrid.innerHTML = '';
         const searchTerm = searchInput.value.toLowerCase().trim();
-
         const filteredTools = cloudTools.filter(tool => {
             const text = (tool.name + tool.description + tool.creator).toLowerCase();
             const matchesSearch = text.includes(searchTerm);
@@ -386,53 +512,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesView = currentView === 'all' || favorites.includes(tool.id);
             return matchesSearch && matchesCategory && matchesView;
         });
-
         filteredTools.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-
         if (filteredTools.length === 0) {
-            const isEmptySearch = searchTerm !== '' || currentCategory !== '전체' || currentView !== 'all';
-            toolGrid.innerHTML = `
-                <div class="col-span-full py-20 text-center flex flex-col items-center justify-center">
-                    <div class="text-6xl mb-6 grayscale opacity-50">📁</div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">${isEmptySearch ? '찾으시는 툴이 없습니다.' : '등록된 디자인 툴이 없습니다.'}</h3>
-                    <p class="text-slate-500 mb-8 max-w-sm mx-auto">
-                        ${isEmptySearch ? '검색어 또는 필터를 변경해 보세요.' : '팀원들에게 유용한 사이트를 직접 공유해 보세요.'}
-                    </p>
-                </div>
-            `;
+            toolGrid.innerHTML = `<div class="col-span-full py-20 text-center flex flex-col items-center justify-center grayscale opacity-50 text-6xl mb-6">📁<h3 class="text-xl font-bold text-slate-800 mb-2">찾으시는 툴이 없습니다.</h3></div>`;
         } else {
             filteredTools.forEach(tool => toolGrid.appendChild(createToolCard(tool)));
         }
     }
 
     sidebarToggle.onclick = () => {
-        const isMobile = window.innerWidth < 768;
-        if (isMobile) {
-            if (sidebar.classList.contains('-translate-x-full')) showSidebar();
-            else hideSidebar();
-        } else {
-            if (sidebar.classList.contains('md:flex')) hideSidebar();
-            else showSidebar();
-        }
+        if (window.innerWidth < 768) sidebar.classList.contains('-translate-x-full') ? showSidebar() : hideSidebar();
+        else sidebar.classList.contains('md:flex') ? hideSidebar() : showSidebar();
     };
-
     sidebarOverlay.onclick = hideSidebar;
     searchInput.addEventListener('input', renderTools);
-    
-    navHomeBtn.onclick = () => {
-        currentView = 'all'; currentCategory = '전체';
-        navHomeBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600";
-        navFavoritesBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800";
-        renderCategoryTabs(); renderTools();
-        if (window.innerWidth < 768) hideSidebar();
+    navHomeBtn.onclick = () => { 
+        currentView = 'all'; 
+        currentCategory = '전체'; 
+        navHomeBtn.classList.add('bg-brand-50', 'text-brand-600');
+        navHomeBtn.classList.remove('text-slate-500');
+        navFavoritesBtn.classList.remove('bg-brand-50', 'text-brand-600');
+        navFavoritesBtn.classList.add('text-slate-500');
+        renderCategoryTabs(); 
+        renderTools(); 
+        if (window.innerWidth < 768) hideSidebar(); 
     };
-
-    navFavoritesBtn.onclick = () => {
-        currentView = 'favorites';
-        navHomeBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group text-slate-500 hover:bg-slate-50 hover:text-slate-800";
-        navFavoritesBtn.className = "flex items-center w-full px-4 py-3 text-sm font-medium transition-colors rounded-xl group bg-brand-50 text-brand-600";
-        renderTools();
-        if (window.innerWidth < 768) hideSidebar();
+    navFavoritesBtn.onclick = () => { 
+        currentView = 'favorites'; 
+        navFavoritesBtn.classList.add('bg-brand-50', 'text-brand-600');
+        navFavoritesBtn.classList.remove('text-slate-500');
+        navHomeBtn.classList.remove('bg-brand-50', 'text-brand-600');
+        navHomeBtn.classList.add('text-slate-500');
+        renderTools(); 
+        if (window.innerWidth < 768) hideSidebar(); 
     };
 
     renderCategoryTabs();
