@@ -81,19 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fadeLeft = document.getElementById('tabs-fade-left');
     const fadeRight = document.getElementById('tabs-fade-right');
 
-    const tourOverlay = document.getElementById('onboarding-overlay');
-    const tourSpotlight = document.getElementById('tour-spotlight');
-    const tourTooltip = document.getElementById('tour-tooltip');
-    const tourTitle = document.getElementById('tour-title');
-    const tourDesc = document.getElementById('tour-desc');
-    const tourStepCount = document.getElementById('tour-step-count');
-    const tourNextBtn = document.getElementById('tour-next-btn');
-    const tourNextText = document.getElementById('tour-next-text');
-    const tourSkipBtn = document.getElementById('tour-skip-btn');
-    const tourNeverLabel = document.getElementById('tour-never-label');
-    const tourNeverCheck = document.getElementById('tour-never-check');
-    const tooltipArrow = document.getElementById('tooltip-arrow');
-
     let cloudTools = [];
     let favorites = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)) || [];
     let hiddenSystemIds = JSON.parse(localStorage.getItem(HIDDEN_SYSTEM_TOOLS_KEY)) || [];
@@ -119,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerText = "수정 완료";
             document.getElementById('tool-id').value = tool.firebaseId || tool.id || '';
             document.getElementById('tool-category').value = tool.category;
+            document.getElementById('tool-source').value = tool.source || 'internal';
             document.getElementById('tool-name').value = tool.name;
             document.getElementById('tool-creator').value = tool.creator;
             document.getElementById('tool-description').value = tool.description;
@@ -128,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerText = "팀과 공유하기";
             addToolForm.reset();
             document.getElementById('tool-id').value = '';
+            document.getElementById('tool-source').value = 'internal'; // 기본값
         }
         modal.classList.remove('hidden');
     }
@@ -145,18 +134,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('tool-password').value;
 
         if (password !== ADMIN_PASSWORD) {
-            alert("관리자 비밀번호가 일치하지 않습니다. (Hint: admin)");
+            alert("관리자 비밀번호가 일치하지 않습니다.");
             return;
         }
 
         const toolData = {
             id: fid.startsWith('def-') ? fid + '-mod-' + Date.now() : (fid || Date.now().toString()),
             category: document.getElementById('tool-category').value,
+            source: document.getElementById('tool-source').value,
             name: document.getElementById('tool-name').value,
             creator: document.getElementById('tool-creator').value,
             description: document.getElementById('tool-description').value,
             url: document.getElementById('tool-url').value,
-            source: 'internal',
             updatedAt: Date.now()
         };
 
@@ -219,12 +208,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const localUserTools = JSON.parse(localStorage.getItem('demo-tools')) || [];
             cloudTools = [...DEFAULT_TOOLS, ...localUserTools].filter(t => !hiddenSystemIds.includes(t.id));
             renderTools();
-            statusText.innerText = "로컬 모드 (admin 허용)";
+            statusText.innerText = "로컬 모드";
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
             return;
         }
 
-        // 초기 동기화
         db.ref('settings/hiddenSystemIds').on('value', snap => {
             hiddenSystemIds = snap.val() || [];
             localStorage.setItem(HIDDEN_SYSTEM_TOOLS_KEY, JSON.stringify(hiddenSystemIds));
@@ -264,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try { const domain = new URL(url).hostname; iconHtml = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=128" class="w-8 h-8 object-contain" onerror="this.parentElement.innerText='✨'">`; } catch(e){}
         }
         
-        const sourceBadge = source === 'internal' 
+        const sourceBadge = (source === 'internal')
             ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-brand-100 text-brand-700 border border-brand-200 ml-2 shadow-sm">🏢 우리팀</span>`
             : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200 ml-2">🌐 외부</span>`;
 
