@@ -1,3 +1,4 @@
+
 /**
  * ✅ [연결 완료] 디자인팀 실시간 공유 설정이 적용되었습니다.
  */
@@ -22,7 +23,7 @@ if (isFirebaseReady) {
 }
 
 // ---------------------------------------------------------
-// 초기 추천 데이터 세트 (25선)
+// 초기 추천 데이터 세트
 // ---------------------------------------------------------
 const DEFAULT_TOOLS = [
     { name: "Dribbble", creator: "System", category: "영감 & 레퍼런스 (Inspiration)", description: "전 세계 디자이너들의 최신 트렌드와 포트폴리오를 확인할 수 있는 대표 플랫폼입니다.", url: "https://dribbble.com", source: "external", password: "admin" },
@@ -53,7 +54,7 @@ const DEFAULT_TOOLS = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. UI 요소 가져오기
+    // UI 요소
     const addToolBtn = document.getElementById('add-tool-btn');
     const modal = document.getElementById('add-tool-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -72,10 +73,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDot = document.getElementById('status-dot');
     const statusText = document.getElementById('status-text');
 
+    // 온보딩 관련 요소
+    const tourOverlay = document.getElementById('onboarding-overlay');
+    const tourSpotlight = document.getElementById('tour-spotlight');
+    const tourTooltip = document.getElementById('tour-tooltip');
+    const tourTitle = document.getElementById('tour-title');
+    const tourDesc = document.getElementById('tour-desc');
+    const tourStepCount = document.getElementById('tour-step-count');
+    const tourNextBtn = document.getElementById('tour-next-btn');
+    const tourNextText = document.getElementById('tour-next-text');
+    const tourSkipBtn = document.getElementById('tour-skip-btn');
+    const tourNeverLabel = document.getElementById('tour-never-label');
+    const tourNeverCheck = document.getElementById('tour-never-check');
+    const tooltipArrow = document.getElementById('tooltip-arrow');
+
     const FAVORITES_STORAGE_KEY = 'ai-design-hub-favorites-v3';
+    const HIDE_TOUR_KEY = 'ai-design-hub-hide-tour-v1';
     const ADMIN_PASSWORD = "admin"; 
 
-    // 상태 변수
     let cloudTools = [];
     let favorites = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)) || [];
     let currentCategory = "전체";
@@ -92,14 +107,138 @@ document.addEventListener('DOMContentLoaded', () => {
         "기타 (Etc)"
     ];
 
-    // 2. 실시간 데이터 동기화
+    // ---------------------------------------------------------
+    // 🚦 온보딩 가이드 투어 로직
+    // ---------------------------------------------------------
+    const tourSteps = [
+        {
+            targetId: 'sidebar-nav',
+            title: '주요 메뉴 가이드',
+            desc: '이곳에서 홈 화면과 내가 찜한 즐겨찾기 도구들을 관리할 수 있습니다.',
+            pos: 'right'
+        },
+        {
+            targetId: 'search-container',
+            title: '실시간 검색창',
+            desc: '언제든 키워드를 입력해 원하는 툴을 찾으세요. 단축키 "/"로 빠르게 포커스할 수 있습니다.',
+            pos: 'bottom'
+        },
+        {
+            targetId: 'category-tabs',
+            title: '카테고리 퀵 필터',
+            desc: '영감, 에셋, AI 등 업무 성격에 맞춰 잘 정리된 카테고리를 골라보세요.',
+            pos: 'bottom'
+        },
+        {
+            targetId: 'add-tool-btn',
+            title: '실시간 툴 공유하기',
+            desc: '팀원들과 나누고 싶은 유용한 사이트가 있다면 여기서 직접 등록해 보세요.',
+            pos: 'bottom'
+        },
+        {
+            targetId: 'cloud-status',
+            title: '데이터 연결 상태',
+            desc: '클라우드 실시간 동기화 상태를 나타냅니다. 항상 최신 정보가 유지됩니다.',
+            pos: 'bottom'
+        }
+    ];
+
+    let currentStep = 0;
+
+    function startTour() {
+        if (localStorage.getItem(HIDE_TOUR_KEY)) return;
+        
+        tourOverlay.classList.remove('hidden');
+        setTimeout(() => tourOverlay.classList.add('active'), 10);
+        showStep(0);
+    }
+
+    function showStep(index) {
+        currentStep = index;
+        const step = tourSteps[index];
+        const target = document.getElementById(step.targetId);
+        if (!target) return;
+
+        // 스포트라이트 위치 계산
+        const rect = target.getBoundingClientRect();
+        const padding = 8;
+        tourSpotlight.style.top = `${rect.top - padding}px`;
+        tourSpotlight.style.left = `${rect.left - padding}px`;
+        tourSpotlight.style.width = `${rect.width + padding * 2}px`;
+        tourSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+        // 툴팁 내용 업데이트
+        tourTitle.innerText = step.title;
+        tourDesc.innerText = step.desc;
+        tourStepCount.innerText = `STEP ${index + 1}/${tourSteps.length}`;
+        tourNextText.innerText = index === tourSteps.length - 1 ? '시작하기' : '다음 단계로';
+        
+        if (index === tourSteps.length - 1) {
+            tourNeverLabel.classList.remove('hidden');
+            tourNeverLabel.classList.add('flex');
+        } else {
+            tourNeverLabel.classList.add('hidden');
+            tourNeverLabel.classList.remove('flex');
+        }
+
+        // 툴팁 위치 계산
+        tourTooltip.classList.remove('hidden');
+        setTimeout(() => {
+            const tooltipRect = tourTooltip.getBoundingClientRect();
+            let top, left;
+
+            if (step.pos === 'right') {
+                top = rect.top;
+                left = rect.right + 24;
+                tooltipArrow.style.top = '24px';
+                tooltipArrow.style.left = '-8px';
+            } else {
+                top = rect.bottom + 24;
+                left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                tooltipArrow.style.top = '-8px';
+                tooltipArrow.style.left = `${tooltipRect.width / 2 - 8}px`;
+            }
+
+            // 화면 밖으로 나가지 않게 보정
+            if (left < 16) left = 16;
+            if (left + tooltipRect.width > window.innerWidth - 16) left = window.innerWidth - tooltipRect.width - 16;
+
+            tourTooltip.style.top = `${top}px`;
+            tourTooltip.style.left = `${left}px`;
+            tourTooltip.classList.add('active');
+        }, 100);
+    }
+
+    tourNextBtn.onclick = () => {
+        if (currentStep < tourSteps.length - 1) {
+            showStep(currentStep + 1);
+        } else {
+            endTour();
+        }
+    };
+
+    tourSkipBtn.onclick = () => endTour();
+
+    function endTour() {
+        if (tourNeverCheck.checked) {
+            localStorage.setItem(HIDE_TOUR_KEY, 'true');
+        }
+        tourTooltip.classList.remove('active');
+        tourOverlay.classList.remove('active');
+        setTimeout(() => tourOverlay.classList.add('hidden'), 300);
+    }
+
+    // ---------------------------------------------------------
+    // ☁️ 실시간 데이터 동기화
+    // ---------------------------------------------------------
     function initSync() {
         if (!isFirebaseReady) {
-            statusText.innerText = "로컬 모드 (오프라인)";
+            statusText.innerText = "로컬 모드";
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
             cloudTools = JSON.parse(localStorage.getItem('demo-tools')) || [];
             renderTools();
+            startTour();
             return;
         }
 
@@ -110,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse";
             renderTools();
             initialLoader.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(startTour, 500);
         }, (error) => {
             statusText.innerText = "연결 오류";
             statusDot.className = "w-1.5 h-1.5 rounded-full bg-red-500";
@@ -117,7 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. 카드 렌더링
+    // ---------------------------------------------------------
+    // 🎨 UI 렌더링 및 기능
+    // ---------------------------------------------------------
     function renderCategoryTabs() {
         const tabsContainer = document.getElementById('category-tabs');
         if (!tabsContainer) return;
@@ -243,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
             initialLoader.classList.remove('opacity-0', 'pointer-events-none');
             const now = Date.now();
             if (isFirebaseReady) {
-                // 역순으로 등록하여 리스트 상단에 Dribbble이 오도록 처리 (정렬 로직 대응)
                 for (let i = DEFAULT_TOOLS.length - 1; i >= 0; i--) {
                     const tool = DEFAULT_TOOLS[i];
                     await db.ref('tools').push({ ...tool, updatedAt: now - (i * 1000) });
